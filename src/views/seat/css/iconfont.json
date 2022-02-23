@@ -1,0 +1,23 @@
+{
+  "id": "2982662",
+  "name": "至信科技-covid-check",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "8286046",
+      "name": "可选座位",
+      "font_class": "kexuanzuowei",
+      "unicode": "e699",
+      "unicode_decimal": 59033
+    },
+    {
+      "icon_id": "1053869",
+      "name": "arrow_right",
+      "font_class": "arrowright",
+      "unicode": "e774",
+      "unicode_decimal": 59252
+    }
+  ]
+}
