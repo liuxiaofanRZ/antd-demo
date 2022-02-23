@@ -56,7 +56,6 @@ export default {
   methods: {
     ...mapActions(['Login']),
     handleSubmit() {
-      console.log(this.form)
       this.Login(this.form)
     },
   },

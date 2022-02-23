@@ -88,7 +88,6 @@ export default {
         { selected: false, id: id++, group: '' },
         { selected: false, id: id++, group: '' },
         { selected: false, id: id++, group: '' },
-
       ],
       mask_start: {
         x: 0,

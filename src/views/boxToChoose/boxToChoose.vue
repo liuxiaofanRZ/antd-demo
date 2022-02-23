@@ -1,7 +1,5 @@
 <template>
-  <div class="boxToChoose" ref="box">
-      
-  </div>
+  <div class="boxToChoose" ref="box"></div>
 </template>
 
 <script>
@@ -9,7 +7,7 @@ export default {
   name: 'boxToChoose',
   data() {
     return {
-        box:null
+      box: null,
     }
   },
   mounted() {

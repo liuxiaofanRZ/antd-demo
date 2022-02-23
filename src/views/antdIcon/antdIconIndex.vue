@@ -5,17 +5,15 @@
     <a-divider type="vertical" />
     <my-icon type="icon-kexuanzuowei"></my-icon>
 
-
     <a-divider />
 
-
     <span>自定义 SVG 图标： </span>
-    <a-icon style="color:red" :component="arrowRight"></a-icon>
+    <a-icon style="color: red" :component="arrowRight"></a-icon>
     <a-divider type="vertical" />
     <a-icon :component="seat" />
     <a-divider type="vertical" />
 
-    <a-icon style="color:red" :component="seat" />
+    <a-icon style="color: red" :component="seat" />
 
     <div class="btns">
       <div class="btn-box">

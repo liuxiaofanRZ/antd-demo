@@ -15,8 +15,9 @@ Vue.config.productionTip = false
 import customTree from './views/customTree/customTree.vue'
 Vue.component('custom-tree', customTree)
 
-new Vue({
+export default new Vue({
   router,
   store,
+  chatWs: null,
   render: (h) => h(App),
 }).$mount('#app')
