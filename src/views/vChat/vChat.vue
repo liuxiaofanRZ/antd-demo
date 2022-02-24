@@ -1,5 +1,6 @@
 <template>
   <div v-if="token" class="vchat">
+    <button @click="queryMsgBoxCount">获取</button>
     <!-- 聊天菜单 -->
     <div v-if="isOpen" class="vchat-board-big">
       <div class="vchat-board-info">
@@ -10,7 +11,12 @@
           <div class="vchat-board-status">{{ mine.status | statusText }}</div>
         </div>
         <div class="vchat-board-sign">
-          <div class="sign">{{ mine.sign }}</div>
+          <input
+            maxlength="50"
+            @blur="(e) => updateSign(e.target.value)"
+            :value="mine.sign"
+            class="sign sign-input"
+          />
         </div>
       </div>
       <div class="vchat-board-main">
@@ -22,7 +28,12 @@
             v-for="tab in vChatBoxTabs"
             :key="tab.id"
           >
-            <span>{{ tab.title }}</span>
+            <!-- <span>{{ tab.title }}</span> -->
+            <a-icon
+              style="font-size: 24px"
+              :title="tab.title"
+              :type="tab.icon"
+            />
           </div>
         </div>
         <div class="vchat-board-contents">
@@ -74,7 +85,34 @@
             class="vchat-board-contents-item"
             v-if="vChatBoxTabsCurrentId === 3"
           >
-            3
+            <div
+              class="vchat-board-friend"
+              @click="openChatBox(f)"
+              v-for="f in sessions"
+              :key="f.id"
+            >
+              <img
+                v-if="f.avatar"
+                class="vchat-board-friend-avatar"
+                :src="f.avatar"
+                alt="头像"
+              />
+              <img
+                v-else
+                class="vchat-board-friend-avatar"
+                src="./img/avatar_empty.jpg"
+                alt="没有头像"
+              />
+
+              <div class="vchat-board-friend-info">
+                <div class="vchat-board-friend-name vchat-board-ellipsis">
+                  {{ f.username }}
+                </div>
+                <div class="vchat-board-friend-sign vchat-board-ellipsis">
+                  {{ f.sign }}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -86,9 +124,7 @@
     </div>
 
     <!-- 聊天窗口 -->
-    <chat-box></chat-box>
-
-    <button @click="queryMsgBoxCount">获取</button>
+    <chat-box v-draggable></chat-box>
   </div>
 </template>
 
@@ -111,17 +147,17 @@ export default {
       vChatBoxTabs: [
         {
           title: '我的好友',
-          icon: '',
+          icon: 'user',
           id: 1,
         },
         {
           title: '通讯录',
-          icon: '',
+          icon: 'team',
           id: 2,
         },
         {
           title: '历史会话',
-          icon: '',
+          icon: 'message',
           id: 3,
         },
       ],
@@ -131,7 +167,7 @@ export default {
   },
   computed: {
     ...mapState(['token', 'info']),
-    ...mapStateChat(['mine', 'groups']),
+    ...mapStateChat(['mine', 'groups', 'sessions']),
   },
   watch: {
     token(token) {
@@ -153,7 +189,12 @@ export default {
     },
   },
   methods: {
-    ...mapActionsChat(['openChatBox', 'getInitChatInfo', 'receiveMessage']),
+    ...mapActionsChat([
+      'openChatBox',
+      'getInitChatInfo',
+      'receiveMessage',
+      'updateSign',
+    ]),
     init() {
       this.initSocket()
       this.getInitChatInfo()
@@ -168,7 +209,7 @@ export default {
           '/eoaSocket/' +
           this.info.id,
         onmessage: (res) => {
-          this.receiveMessage(JSON.parse(res).data)
+          this.receiveMessage(JSON.parse(res))
         },
       }).connect()
     },
@@ -179,6 +220,47 @@ export default {
     },
   },
   created() {},
+  directives: {
+    draggable: {
+      inserted: function (el) {
+        let bar = el.querySelector("#vchatboxbar")
+        bar.style.cursor = 'move'
+        bar.onmousedown = function (e) {
+          let disx = e.pageX - el.offsetLeft
+          let disy = e.pageY - el.offsetTop
+          document.onmousemove = function (e) {
+            e.stopPropagation()
+            e.preventDefault()
+            let x = e.pageX - disx
+            let y = e.pageY - disy
+            let maxX =
+              document.body.clientWidth -
+              parseInt(window.getComputedStyle(el).width)
+            let maxY =
+              document.body.clientHeight -
+              parseInt(window.getComputedStyle(el).height)
+            if (x < 0) {
+              x = 0
+            } else if (x > maxX) {
+              x = maxX
+            }
+
+            if (y < 0) {
+              y = 0
+            } else if (y > maxY) {
+              y = maxY
+            }
+
+            el.style.left = x + 'px'
+            el.style.top = y + 'px'
+          }
+          document.onmouseup = function () {
+            document.onmousemove = document.onmouseup = null
+          }
+        }
+      },
+    },
+  },
 }
 </script>
 
@@ -220,13 +302,33 @@ export default {
       z-index: 99998;
       border: @border;
       border-radius: borderRadius;
+      background-image: url('./img/chat_menu_bg.jpg');
     }
     &-info {
-      padding: 10px 15px 0;
+      padding: 10px 12px 0;
       height: 60px;
     }
     &-user {
       display: flex;
+      padding-left: 3px;
+    }
+    &-sign {
+      height: 26px;
+      .sign {
+        height: 100%;
+        background: transparent;
+        border: none;
+        outline: none;
+        border: 1px solid transparent;
+        width: 100%;
+        &:hover {
+          border-color: rgba(0, 0, 0, 0.15);
+        }
+        &:focus {
+          border-color: rgba(0, 0, 0, 0.15);
+          background-color: #fff;
+        }
+      }
     }
     &-name {
       max-width: 150px;
@@ -240,18 +342,27 @@ export default {
       display: flex;
       &-item {
         text-align: center;
+        line-height: 40px;
         flex: 1;
+        position: relative;
         cursor: pointer;
-        &.current {
-          background-color: #e4a;
+        &.current::after {
+          content: '';
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 3px;
+          background-color: #3fdd86;
         }
       }
     }
     &-contents {
       height: 370px;
+      background-color: rgba(255, 255, 255, 0.9);
       &-item {
         height: 370px;
-        overflow-y: scroll;
+        overflow-y: auto;
         padding: 10px 0;
       }
     }
@@ -285,6 +396,10 @@ export default {
         color: #999;
       }
     }
+    &-menu {
+      height: 40px;
+      background-color: #f6f6f6;
+    }
   }
 
   .vchat-board-ellipsis {
@@ -292,6 +407,14 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
     max-width: 155px;
+  }
+  .vchat-img {
+    max-width: 100px;
+  }
+  .vchat-link {
+    &:hover {
+      text-decoration: underline;
+    }
   }
 }
 </style>

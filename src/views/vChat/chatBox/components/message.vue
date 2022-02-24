@@ -1,18 +1,21 @@
 <template>
   <div class="message" v-scroll-bottom>
     <div v-if="session">
+      <div class="more" v-if="session.hasMore"><span>查看更多记录</span></div>
       <div class="item" v-for="(item, index) in session.messages" :key="index">
         <p class="time">
           <span>{{ item.timestamp | time }}</span>
         </p>
         <div class="main" :class="{ self: item.mine }">
-          <img
+          <a-avatar
             class="avatar"
-            width="30"
-            height="30"
-            :src="item.mine ? mine.avatar : session.avatar"
+            :alt="item.username"
+            :src="(item.mine ? mine.avatar : session.avatar) || avatarEmpty"
           />
-          <div class="text">{{ item.content }}</div>
+          <!-- <div v-html="transferMessage(item.content)" class="text"></div> -->
+          <div v-html="transferMessage(item.content)" class="text">
+            {{ item.content }}
+          </div>
         </div>
       </div>
     </div>
@@ -22,7 +25,10 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('chat')
+import avatarEmpty from '../../img/avatar_empty.jpg'
+import faceArray from '../../js/faceArray'
 import Vue from 'vue'
+import { transferMessage } from '../../js/util'
 export default {
   computed: {
     ...mapState({
@@ -30,6 +36,15 @@ export default {
       session: ({ sessions, currentSession }) =>
         sessions.find((session) => session.id === currentSession.id),
     }),
+  },
+  data() {
+    return {
+      avatarEmpty,
+      faceArray,
+    }
+  },
+  methods: {
+    transferMessage,
   },
   filters: {
     // 将日期过滤为 hour:minutes
@@ -46,7 +61,7 @@ export default {
     // 发送消息后滚动到底部
     'scroll-bottom'(el) {
       Vue.nextTick(() => {
-        el.scrollTop = el.scrollHeight - el.clientHeight
+        el.scrollTop = el.scrollHeight
       })
     },
   },
@@ -56,10 +71,22 @@ export default {
 <style lang="less" scoped>
 .message {
   padding: 10px 15px;
-  height: calc(100% - 160px - 60px);
+  height: calc(100% - 200px - 60px);
 
   overflow-y: auto;
-
+  .more {
+    text-align: center;
+    padding: 15px 0;
+    > span {
+      display: inline-block;
+      line-height: 30px;
+      padding: 0 15px;
+      border-radius: 3px;
+      background-color: #e2e2e2;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  }
   .item {
     margin-bottom: 15px;
   }
@@ -84,16 +111,16 @@ export default {
   .text {
     display: inline-block;
     position: relative;
-    padding: 0 10px;
-    max-width: ~'calc(100% - 40px)';
+    padding: 10px;
+    max-width: ~'calc(100% - 150px)';
     min-height: 30px;
-    line-height: 2.5;
+    // line-height: 2.5;
     font-size: 12px;
     text-align: left;
     word-break: break-all;
     background-color: #fafafa;
     border-radius: 4px;
-
+    white-space: pre-line;
     &:before {
       content: ' ';
       position: absolute;

@@ -1,5 +1,6 @@
-import { getList } from '@/axios/vChatApi'
+import { getList, updateSign } from '@/axios/vChatApi'
 import App from '@/main'
+
 const chat = {
   namespaced: true,
   state: {
@@ -36,32 +37,37 @@ const chat = {
       }
     },
     // 发送消息
-    SEND_MESSAGE({ sessions, currentSession }, message) {
+    SEND_MESSAGE({ sessions, currentSession }, data) {
       let session = sessions.find((item) => item.id === currentSession.id)
-
-      // TODO: 消息的时间暂时使用本地的
       session.messages.push({
-        ...message.mine,
+        ...data.mine,
         type: 'friend',
         timestamp: new Date().getTime(),
       })
     },
-    // 接收消息
-    RECEIVE_MESSAGE({ sessions }, mine /* 这里指发送消息的人 */) {
-      let session = sessions.find((item) => item.id === mine.id)
-      // TODO: 消息的时间暂时使用本地的
+    // TODO: 接收消息（只处理了会话消息）
+    RECEIVE_MESSAGE({ sessions }, result) {
+      const timestamp = new Date().getTime()
+      let session = sessions.find((item) => item.id === result.data.mine.id)
       session.messages.push({
-        ...mine,
+        ...result.data.mine,
         mine: false,
         type: 'friend',
-        timestamp: new Date().getTime(),
+        timestamp: result.data.to.sendTime
+          ? result.data.to.sendTime
+          : timestamp,
       })
     },
+    // 创建会话
     CREATE_SESSION(state, to) {
       state.sessions.push({
         ...to,
         messages: [],
       })
+    },
+    // 创建会话列表
+    CREATE_SESSIONS(state, sessions) {
+      state.sessions = sessions
     },
     // 选择会话
     SELECT_SESSION(state, to) {
@@ -75,11 +81,23 @@ const chat = {
     OPEN_CHAT_BOX(state, value) {
       state.isChatBoxOpen = value
     },
+    // 更新签名
+    UPDATE_SIGN(state, sign) {
+      state.mine.sign = sign
+    },
   },
   actions: {
     initData: ({ commit }) => commit('INIT_DATA'),
+    // 获取用户聊天模块的基本信息和历史会话数据
     getInitChatInfo: ({ commit, rootState }) => {
+      // 从后台获取基本信息
       return getList({ userId: rootState.info.id }).then((res) => {
+        // 从Storage中获取历史会话数据
+        const historyChats =
+          JSON.parse(localStorage.getItem('CHAT_HISTORY_CHATS')) || {}
+        const sessions = historyChats[rootState.info.id] || []
+
+        commit('CREATE_SESSIONS', sessions)
         commit('SET_MINE', res.data.mine)
         commit('SET_GROUPS', res.data.friend)
         return res.data
@@ -110,23 +128,58 @@ const chat = {
 
       return commit('SEND_MESSAGE', data)
     },
-    receiveMessage: ({ commit, getters: { getTargetSession } }, { mine }) => {
-      if (!getTargetSession(mine.id)) {
-        commit('CREATE_SESSION', mine)
+    receiveMessage: ({ commit, getters: { getTargetSession } }, result) => {
+      if (!getTargetSession(result.data.mine.id)) {
+        commit(
+          'CREATE_SESSION',
+          result.data.mine /* 此处的mine是消息的发送者 */,
+        )
       }
-      return commit('RECEIVE_MESSAGE', mine)
+      return commit('RECEIVE_MESSAGE', result)
     },
     selectSession: ({ commit }, id) => commit('SELECT_SESSION', id),
     search: ({ commit }, value) => commit('SET_FILTER_KEY', value),
     openChatBox: ({ commit, state }, to) => {
-      console.log(to)
       if (!state.sessions.find((item) => item.id === to.id)) {
         commit('CREATE_SESSION', to)
       }
       commit('OPEN_CHAT_BOX', true)
       commit('SELECT_SESSION', to)
     },
+    updateSign: ({ commit, state: { mine } }, sign) => {
+      return updateSign({ userId: mine.id, sign }).then(() => {
+        commit('UPDATE_SIGN', sign)
+      })
+    },
   },
 }
+
+// 保存聊天数据
+window.addEventListener('unload', function () {
+  let userId = chat.state.mine.id
+  // 未登录过
+  if (!userId) return
+  /**
+   * 获取storage中的historyChats
+   * historyChats是map格式的，key是登陆过的用户的id，value是该用户的所有会话：
+   * {[userId]:sessions}
+   */
+  const historyChats =
+    JSON.parse(localStorage.getItem('CHAT_HISTORY_CHATS')) || {}
+  // 本地只缓存每个会话最新的20条数据
+  let sessions = JSON.parse(JSON.stringify(chat.state.sessions))
+  sessions.forEach(session=>{
+    session.messages = session.messages.slice(-20)
+    if(session.messages.length >=20) {
+      session.hasMore = true
+    }
+  })
+  historyChats[userId] = sessions
+  // 保存sessions
+  localStorage.setItem(
+    'CHAT_HISTORY_CHATS',
+    JSON.stringify(historyChats),
+  )
+})
 
 export default chat

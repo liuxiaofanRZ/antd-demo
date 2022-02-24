@@ -1,6 +1,7 @@
 <template>
-  <div class="headline">
+  <div class="headline" id="vchatboxbar">
     <div class="ellipsis">{{ currentSession.username }}</div>
+    <div class="menu"></div>
   </div>
 </template>
 

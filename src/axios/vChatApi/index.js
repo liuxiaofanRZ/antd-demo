@@ -13,3 +13,8 @@ export const queryMsgBoxCount = (params) =>
       token: store.state.token,
     },
   })
+export const updateSign = (params) =>
+  axios.put('eoa/im/api/updateSign', {
+    ...params,
+    token: store.state.token,
+  })
