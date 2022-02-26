@@ -1,15 +1,20 @@
 <template>
-  <div class="headline" id="vchatboxbar">
-    <div class="ellipsis">{{ currentSession.username }}</div>
-    <div class="menu"></div>
+  <div class="headline" id="vchatboxdragbar">
+    <div class="ellipsis">
+      {{ currentSession.username || currentSession.groupName }}
+    </div>
+    <vchat-headmenu></vchat-headmenu>
   </div>
 </template>
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('chat')
+import vchatHeadmenu from './headmenu'
+
 export default {
   name: 'headline',
+  components: { vchatHeadmenu },
   data() {
     return {}
   },

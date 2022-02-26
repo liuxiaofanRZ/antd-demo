@@ -11,7 +11,10 @@
     "ant-design-vue": "^1.7.8",
     "axios": "^0.26.0",
     "core-js": "^3.6.5",
+    "html2canvas": "^1.4.1",
+    "kscreenshot": "^1.2.3",
     "vue": "^2.6.11",
+    "vue-infinite-scroll": "^2.0.2",
     "vue-router": "^3.2.0",
     "vuedraggable": "^2.24.3",
     "vuex": "^3.4.0"

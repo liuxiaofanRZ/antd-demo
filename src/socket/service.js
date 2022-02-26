@@ -6,6 +6,7 @@ export default class Socket {
   constructor(options) {
     this.url = options.url
     this.callback = options.onmessage
+    this.onopen = options.onopen
     this.name = options.name || 'default'
     this.ws = null
     this.status = null
@@ -21,6 +22,11 @@ export default class Socket {
     this.ws.onopen = (e) => {
       this.status = 'open'
       console.log('连接成功', e)
+      if (typeof this.onopen === 'function') {
+        return this.onopen(e)
+      } else {
+        console.log('参数的类型必须为函数')
+      }
       if (this.isHeart) {
         // 心跳
         this._heartCheck()

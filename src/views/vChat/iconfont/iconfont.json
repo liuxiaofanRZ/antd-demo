@@ -1,0 +1,95 @@
+{
+  "id": "3202262",
+  "name": "ico-antd",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "公司：至信科技
+项目：日照市一体化协同办公平台
+前端项目：ico-antd",
+  "glyphs": [
+    {
+      "icon_id": "1299861",
+      "name": "Screenshots-1",
+      "font_class": "jietu2",
+      "unicode": "e662",
+      "unicode_decimal": 58978
+    },
+    {
+      "icon_id": "13397103",
+      "name": "截图",
+      "font_class": "jietu",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
+      "icon_id": "1235",
+      "name": "对话",
+      "font_class": "duihua",
+      "unicode": "e600",
+      "unicode_decimal": 58880
+    },
+    {
+      "icon_id": "31115",
+      "name": "隐身-im",
+      "font_class": "yinshenim",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "145717",
+      "name": "群组_填充",
+      "font_class": "qunzutianchong",
+      "unicode": "e68a",
+      "unicode_decimal": 59018
+    },
+    {
+      "icon_id": "145742",
+      "name": "用户_填充",
+      "font_class": "yonghutianchong",
+      "unicode": "e6a2",
+      "unicode_decimal": 59042
+    },
+    {
+      "icon_id": "1068445",
+      "name": "3.0-在线咨询",
+      "font_class": "zaixianzixun",
+      "unicode": "e6a4",
+      "unicode_decimal": 59044
+    },
+    {
+      "icon_id": "2341145",
+      "name": "关于",
+      "font_class": "guanyu",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
+      "icon_id": "4347520",
+      "name": "icon_添加",
+      "font_class": "icon_tianjia",
+      "unicode": "eb89",
+      "unicode_decimal": 60297
+    },
+    {
+      "icon_id": "4933365",
+      "name": "皮肤",
+      "font_class": "pifu",
+      "unicode": "e743",
+      "unicode_decimal": 59203
+    },
+    {
+      "icon_id": "5383657",
+      "name": "搜索",
+      "font_class": "sousuo",
+      "unicode": "e782",
+      "unicode_decimal": 59266
+    },
+    {
+      "icon_id": "11303430",
+      "name": "消息",
+      "font_class": "xiaoxi",
+      "unicode": "e61b",
+      "unicode_decimal": 58907
+    }
+  ]
+}

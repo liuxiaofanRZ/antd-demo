@@ -1,11 +1,6 @@
 <template>
   <div class="loginIcoIndex">
-    <a-form-model
-      style="width: 300px"
-      :model="form"
-      @submit="handleSubmit"
-      @submit.native.prevent
-    >
+    <a-form-model style="width: 300px" :model="form">
       <a-form-model-item>
         <a-input v-model="form.username" placeholder="Username">
           <a-icon
@@ -27,10 +22,20 @@
       <a-form-model-item>
         <a-button
           type="primary"
-          html-type="submit"
+          @click="handleSubmit"
           :disabled="form.username === '' || form.password === ''"
+          v-if="!token"
         >
           {{ token ? '已登录' : '登陆' }}
+        </a-button>
+
+        <a-button
+          type="danger"
+          html-type="button"
+          v-else
+          @click="$store.commit('SET_TOKEN', '')"
+        >
+          退出
         </a-button>
       </a-form-model-item>
     </a-form-model>

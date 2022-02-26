@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { BASE_URL } from '@/util/env'
 import store from '@/store'
-import qs from "qs"
+import qs from 'qs'
 
 let apiBaseUrl = BASE_URL
 

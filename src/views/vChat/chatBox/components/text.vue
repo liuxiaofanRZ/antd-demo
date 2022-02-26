@@ -77,9 +77,18 @@
           </div>
           <a-icon type="link" />
         </div>
+        <div class="item" @click="screenShot">
+          <i style="font-size: 20px" class="item-icon iconfont icon-jietu" />
+        </div>
+        <div class="item" @click="screenShot2">
+          <i style="font-size: 20px" class="item-icon iconfont icon-jietu" />
+        </div>
       </div>
       <div class="text-menu-right">
-        <span class="item">聊天记录</span>
+        <div class="item">
+          <a-icon class="item-icon" type="history" />
+          <span class="txt">聊天记录</span>
+        </div>
       </div>
     </div>
     <textarea
@@ -96,6 +105,9 @@ import { createNamespacedHelpers } from 'vuex'
 const { mapActions } = createNamespacedHelpers('chat')
 import faceArray from '../../js/faceArray'
 import { BASE_URL } from '@/util/env'
+import html2canvas from 'html2canvas'
+
+import kscreenshot from 'kscreenshot'
 
 export default {
   data() {
@@ -123,6 +135,15 @@ export default {
         wrapperCol: { span: 19 },
       },
       delaySetTimeout: null,
+      kscreenshot: new kscreenshot({
+        key: 65,
+        endCB: (noob) => {
+          console.log(noob)
+        },
+        cancelCB: (noob) => {
+          console.log(noob)
+        },
+      }),
     }
   },
   computed: {
@@ -190,6 +211,32 @@ export default {
         }
       })
     },
+    screenShot() {
+      this.kscreenshot.startScreenShot()
+    },
+    screenShot2() {
+      const $this = this
+      html2canvas(document.querySelector('body'), {
+        useCORS: true,
+        foreignObjectRenderign: true,
+        allowTaint: false,
+      }).then(function (canvas) {
+        let imageurl = canvas.toDataURL('image/png')
+        let imagename = '文件名称'
+        $this.fileDownload(imageurl, imagename)
+      })
+    },
+    //下载截屏图片
+    fileDownload(downloadUrl, downloadName) {
+      let aLink = document.createElement('a')
+      aLink.style.display = 'none'
+      aLink.href = downloadUrl
+      aLink.download = `${downloadName}.jpg`
+      // 触发点击-然后移除
+      document.body.appendChild(aLink)
+      aLink.click()
+      document.body.removeChild(aLink)
+    },
   },
 }
 </script>
@@ -226,8 +273,15 @@ export default {
         margin: 0 10px;
         flex: none;
         cursor: pointer;
+        display: flex;
+        align-items: center;
         &-icon {
           font-size: 22px;
+        }
+        .txt {
+          margin-left: 5px;
+          font-size: 16px;
+          color: #000;
         }
       }
     }

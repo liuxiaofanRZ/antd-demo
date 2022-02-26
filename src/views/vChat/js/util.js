@@ -29,7 +29,7 @@ export function transferMessage(content) {
     .replace(/img\[([^\s]+?)\]/g, function (img) {
       //转义图片
       img = img.replace(/(^img\[)|(\]$)/g, '')
-      return '<img class="vchat-img" src="' + img + '">'
+      return '<img crossorigin="*" class="vchat-img" src="' + img + '">'
     })
     .replace(/file\([\s\S]+?\)\[[\s\S]*?\]/g, function (str) {
       //转义文件
@@ -50,10 +50,16 @@ export function transferMessage(content) {
       var href = (str.match(/a\(([\s\S]+?)\)\[/) || [])[1]
       var text = (str.match(/\)\[([\s\S]*?)\]/) || [])[1]
       if (!href) return str
-      if(href.indexOf('http') != 0) {
-        href = "https://" +href
+      if (href.indexOf('http') != 0) {
+        href = 'https://' + href
       }
-      return '<a class="vchat-link" href="' + href + '" target="_blank">' + (text || href) + '</a>'
+      return (
+        '<a class="vchat-link" href="' +
+        href +
+        '" target="_blank">' +
+        (text || href) +
+        '</a>'
+      )
     })
 
     .replace(/\n/g, '<br>') //转义换行

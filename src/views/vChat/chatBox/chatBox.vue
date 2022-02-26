@@ -1,6 +1,6 @@
 <template>
   <div
-    class="chat-box"
+    class="vchat-box"
     v-if="isChatBoxOpen"
     :style="{ width: false ? '800px' : '600px' }"
   >
@@ -18,7 +18,7 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapActions } = createNamespacedHelpers('chat')
+const { mapState } = createNamespacedHelpers('chat')
 
 import vchatCard from './components/card'
 import vchatList from './components/list'
@@ -28,20 +28,14 @@ import vchatHeadline from './components/headline'
 
 export default {
   components: { vchatCard, vchatList, vchatText, vchatMessage, vchatHeadline },
-  created() {
-    this.initData()
-  },
   computed: {
     ...mapState(['isChatBoxOpen']),
-  },
-  methods: {
-    ...mapActions(['initData']),
   },
 }
 </script>
 
 <style lang="less">
-.chat-box {
+.vchat-box {
   position: fixed;
   top: 100px;
   left: 100px;

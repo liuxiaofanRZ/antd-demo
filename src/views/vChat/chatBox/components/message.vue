@@ -10,7 +10,8 @@
           <a-avatar
             class="avatar"
             :alt="item.username"
-            :src="(item.mine ? mine.avatar : session.avatar) || avatarEmpty"
+            :src="item.avatar"
+            icon="user"
           />
           <!-- <div v-html="transferMessage(item.content)" class="text"></div> -->
           <div v-html="transferMessage(item.content)" class="text">
