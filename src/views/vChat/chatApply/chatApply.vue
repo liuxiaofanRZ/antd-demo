@@ -7,56 +7,116 @@
     />
     <div class="vchat-apply-main">
       <a-tabs type="card">
-        <a-tab-pane key="1" tab="好友验证">
-          <a-list
-            item-layout="horizontal"
-            :data-source="friendList"
-            :infinite-scroll-distance="10"
-            v-infinite-scroll="getApplyFriendList"
-            :infinite-scroll-disabled="!friendHasNext"
-          >
-            <a-list-item slot="renderItem" slot-scope="item">
-              <a-list-item-meta
-                :title="item.username + item.createTime"
-                :description="'附言' + item.remark"
-              >
-                <a-avatar slot="avatar" :src="item.avatar" icon="user" />
-              </a-list-item-meta>
-              <div class="vchat-apply-status">
-                <template v-if="item.status === '0'">
-                  <a-button
-                    @click="agreeFriend(item)"
-                    size="small"
-                    class="btn"
-                    type="primary"
-                  >
-                    同意
-                  </a-button>
-                  <a-popconfirm
-                    cancelText="取消"
-                    okText="确定"
-                    title="确定拒绝吗？"
-                    @confirm="unAgreeFriend(item)"
-                  >
-                    <a-button size="small" class="btn" type="danger">
-                      拒绝
+        <a-button
+          class="vchat-apply-refresh"
+          type="link"
+          icon="reload"
+          @click="init"
+          slot="tabBarExtraContent"
+        ></a-button>
+        <a-tab-pane key="1">
+          <div class="vchat-apply-tab-title" slot="tab">
+            <span class="tit">好友验证</span>
+            <a-badge
+              :numberStyle="{ borderRadius: '3px' }"
+              :count="friendUntreatedCount"
+            />
+          </div>
+          <div class="vchat-apply-list">
+            <a-list item-layout="horizontal" :data-source="friendList">
+              <a-list-item slot="renderItem" slot-scope="item">
+                <a-list-item-meta
+                  :title="item.username + ' ' + item.createTime"
+                  :description="'附言：' + item.remark"
+                >
+                  <a-avatar slot="avatar" :src="item.avatar" icon="user" />
+                </a-list-item-meta>
+                <div class="vchat-apply-status">
+                  <template v-if="item.status === '0'">
+                    <a-button
+                      @click="agreeFriend(item)"
+                      size="small"
+                      class="btn"
+                      type="primary"
+                    >
+                      同意
                     </a-button>
-                  </a-popconfirm>
-                </template>
-                <template v-else-if="item.status === '1'">已同意</template>
-                <template v-else-if="item.status === '2'">已拒绝</template>
+                    <a-popconfirm
+                      cancelText="取消"
+                      okText="确定"
+                      title="确定拒绝吗？"
+                      @confirm="unAgreeFriend(item)"
+                    >
+                      <a-button size="small" class="btn" type="danger">
+                        拒绝
+                      </a-button>
+                    </a-popconfirm>
+                  </template>
+                  <template v-else-if="item.status === '1'">已同意</template>
+                  <template v-else-if="item.status === '2'">已拒绝</template>
+                </div>
+              </a-list-item>
+              <div class="vchat-apply-loadmore" v-if="friendHasNext">
+                <a-spin v-if="friendLoading" />
+                <a-button v-else @click="getApplyFriendList()">
+                  加载更多
+                </a-button>
               </div>
-            </a-list-item>
-            <div v-if="friendHasNext">
-              <a-spin v-if="loading" />
-            </div>
-            <div v-else>暂无更多新消息</div>
-          </a-list>
+              <div class="vchat-apply-loadmore" v-else>暂无更多新消息</div>
+            </a-list>
+          </div>
         </a-tab-pane>
-        <a-tab-pane key="2" tab="群系统消息">
-          <p>Content of Tab Pane 2</p>
-          <p>Content of Tab Pane 2</p>
-          <p>Content of Tab Pane 2</p>
+        <a-tab-pane key="2">
+          <div class="vchat-apply-tab-title" slot="tab">
+            <span class="tit">群系统消息</span>
+            <a-badge
+              :numberStyle="{ borderRadius: '3px' }"
+              :count="groupUntreatedCount"
+            />
+          </div>
+          <div class="vchat-apply-list">
+            <a-list item-layout="horizontal" :data-source="groupList">
+              <a-list-item slot="renderItem" slot-scope="item">
+                <a-list-item-meta
+                  :title="item.username + ' ' + item.createTime"
+                  :description="'群名称：' + item.groupname"
+                >
+                  <a-avatar slot="avatar" :src="item.avatar" icon="user" />
+                </a-list-item-meta>
+                <div class="vchat-apply-status">
+                  <template v-if="item.status === '0'">
+                    <a-button
+                      @click="agreeGroup(item)"
+                      size="small"
+                      class="btn"
+                      type="primary"
+                    >
+                      同意
+                    </a-button>
+                    <a-popconfirm
+                      cancelText="取消"
+                      okText="确定"
+                      title="确定拒绝吗？"
+                      @confirm="unAgreeFriend(item)"
+                    >
+                      <a-button size="small" class="btn" type="danger">
+                        拒绝
+                      </a-button>
+                    </a-popconfirm>
+                  </template>
+                  <template v-else-if="item.status === '1'">已同意</template>
+                  <template v-else-if="item.status === '2'">已拒绝</template>
+                </div>
+              </a-list-item>
+              <div class="vchat-apply-loadmore" v-if="groupHasNext">
+                <a-spin v-if="groupLoading" />
+                <a-button v-else @click="getApplyGroupList()">
+                  加载更多
+                </a-button>
+              </div>
+              <div class="vchat-apply-loadmore" v-else>暂无更多新消息</div>
+            </a-list>
+          </div>
         </a-tab-pane>
       </a-tabs>
     </div>
@@ -65,7 +125,7 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapActions } = createNamespacedHelpers('chat')
+const { mapState, mapActions, mapMutations } = createNamespacedHelpers('chat')
 import {
   queryCharMsgList,
   unAgreeFriend,
@@ -89,11 +149,13 @@ export default {
       friendPage: 1,
       friendHasNext: true,
       friendUntreatedCount: 0,
+      friendLoading: false,
       // 申请加群的消息列表
       groupList: [],
       groupPage: 1,
       groupHasNext: true,
       groupUntreatedCount: 0,
+      groupLoading: false,
 
       loading: false,
     }
@@ -107,41 +169,95 @@ export default {
     },
   },
   computed: {
-    ...mapState(['friends', 'groups', 'isChatApplyOpen']),
+    ...mapState(['mine', 'friends', 'groups', 'isChatApplyOpen']),
   },
   methods: {
-    ...mapActions(['closeChatFind', 'closeChatApply']),
+    ...mapMutations({ resetApplyNum: 'UPDATE_NEW_FIND_NUM' }),
+    ...mapActions(['openChatApply', 'closeChatApply', 'sendApplyMsg']),
     init() {
+      this.resetApplyNum(0)
       this.getApplyFriendList(true)
+      this.getApplyGroupList(true)
     },
     getApplyFriendList(refresh) {
-      console.log(refresh)
+      if (this.friendLoading) return
       if (refresh) {
+        this.friendList = []
         this.friendPage = 1
         this.friendHasNext = true
       }
       if (!this.friendHasNext) return
-      this.loading = true
+      this.friendLoading = true
+
       queryCharMsgList({ page: this.friendPage++, type: 'friend' })
         .then((res) => {
           if (res.success) {
             let { pageList, friendCount } = res.result
-            this.friendList = pageList.records
-            this.friendHasNext = pageList.current >= pageList.pages
+
+            if (refresh) {
+              this.friendList = pageList.records
+            } else {
+              this.friendList.push(...pageList.records)
+            }
+            this.friendHasNext = pageList.current < pageList.pages
             this.friendUntreatedCount = friendCount
           }
           console.log(res)
         })
         .finally(() => {
-          this.loading = false
+          this.friendLoading = false
         })
     },
+    getApplyGroupList(refresh) {
+      if (this.groupLoading) return
+      if (refresh) {
+        this.groupList = []
+        this.groupPage = 1
+        this.groupHasNext = true
+      }
+      if (!this.groupHasNext) return
+      this.groupLoading = true
+
+      queryCharMsgList({ page: this.groupPage++, type: 'group' })
+        .then((res) => {
+          if (res.success) {
+            let { pageList, groupCount } = res.result
+
+            if (refresh) {
+              this.groupList = pageList.records
+            } else {
+              this.groupList.push(...pageList.records)
+            }
+            this.groupHasNext = pageList.current < pageList.pages
+            this.groupUntreatedCount = groupCount
+          }
+          console.log(res)
+        })
+        .finally(() => {
+          this.groupLoading = false
+        })
+    },
+    // TODO Tips：拒绝和同意时，需要调用xhr和ws两次接口……醉了
     // 拒绝申请
     unAgreeFriend(item) {
       unAgreeFriend({ id: item.id }).then((res) => {
         if (res == '已拒绝') {
+          if (item.msgType == '1') {
+            this.friendUntreatedCount--
+          } else {
+            this.groupUntreatedCount--
+          }
           item.status = '2'
           this.$message.success(res)
+          this.sendApplyMsg({
+            agree: false,
+            content: this.mine.username + '拒绝了您的申请',
+            id: item.msgForm,
+            system: true,
+            toId: item.msgTo,
+            type: 'friend',
+            username: this.mine.username,
+          })
         }
       })
     },
@@ -153,8 +269,19 @@ export default {
         groupId: item.groupId,
       }).then((res) => {
         if (res == '添加成功') {
+          this.groupUntreatedCount--
+
           item.status = '1'
           this.$message.success(res)
+          this.sendApplyMsg({
+            agree: true,
+            content: this.mine.username + '同意了您的申请',
+            id: item.msgForm,
+            system: true,
+            toId: item.groupId,
+            type: 'group',
+            username: item.groupname,
+          })
         }
       })
     },
@@ -169,8 +296,20 @@ export default {
         friendGroupId: item.groupId,
       }).then((res) => {
         if (res == '添加成功') {
+          this.friendUntreatedCount--
+
           item.status = '1'
           this.$message.success(res)
+          this.sendApplyMsg({
+            agree: true,
+            content: this.mine.username + '同意了您的申请',
+            groupid: item.groupId,
+            id: item.msgForm,
+            system: true,
+            toId: item.msgTo,
+            type: 'friend',
+            username: this.mine.username,
+          })
         }
       })
     },
@@ -183,7 +322,7 @@ export default {
   position: fixed;
   top: 100px;
   left: 100px;
-  width: 1000px;
+  width: 700px;
   // height: 600px;
   box-sizing: content-box;
   background-color: #fff;
@@ -192,11 +331,32 @@ export default {
   border: 1px solid #d9d9d9;
   &-main {
     padding: 20px;
+    position: relative;
+  }
+  &-list {
+    height: 400px;
+    overflow: auto;
   }
   &-status {
     padding: 0 20px;
     .btn {
       margin-left: 10px;
+    }
+  }
+  &-loadmore {
+    text-align: center;
+    height: 40px;
+  }
+  &-refresh {
+    &:hover {
+      background-color: #eee !important;
+    }
+  }
+  &-tab-title {
+    font-size: 16px;
+    .tit {
+      vertical-align: middle;
+      margin-right: 5px;
     }
   }
 }

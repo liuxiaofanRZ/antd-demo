@@ -15,8 +15,8 @@ const chat = {
     friends: [],
     // 会话列表
     sessions: [],
-    // 当前选中的会话
-    currentSession: {},
+    // 当前选中的会话。注：会话对象有三种，好友（无type字段），讨论组（type="1"），群（type="2"）
+    curSession: {},
     // 过滤出只包含这个key的会话
     filterKey: '',
     // 聊天窗口是否显示
@@ -37,9 +37,12 @@ const chat = {
   getters: {
     getTargetSession:
       ({ sessions }) =>
-      (id) => {
-        return sessions.find((item) => item.id === id)
-      },
+      (id) =>
+        sessions.find((item) => item.id === id),
+    getTargetGroup:
+      ({ groups }) =>
+      (id) =>
+        groups.find((item) => item.id === id),
   },
   mutations: {
     SET_MINE(state, mine) {
@@ -56,25 +59,36 @@ const chat = {
       state.groups.push(group)
     },
     // 发送消息
-    SEND_MESSAGE({ sessions, currentSession }, data) {
-      let session = sessions.find((item) => item.id === currentSession.id)
+    SEND_MESSAGE({ sessions, curSession }, data) {
+      let session = sessions.find((item) => item.id === curSession.id)
       session.messages.push({
         ...data.mine,
         type: 'friend',
         timestamp: new Date().getTime(),
       })
     },
-    // TODO: 接收消息（只处理了会话消息）
-    RECEIVE_MESSAGE({ sessions }, result) {
+    // 接收好友消息
+    RECEIVE_MESSAGE_FRIEND({ sessions }, data) {
       const timestamp = new Date().getTime()
-      let session = sessions.find((item) => item.id === result.data.mine.id)
+      let session = sessions.find((item) => item.id === data.mine.id)
       session.messages.push({
-        ...result.data.mine,
+        ...data.mine,
         mine: false,
-        type: 'friend',
-        timestamp: result.data.to.sendTime
-          ? result.data.to.sendTime
-          : timestamp,
+        type: data.to.type,
+        timestamp: data.to.sendTime ? data.to.sendTime : timestamp,
+      })
+    },
+    // 接收群消息消息
+    RECEIVE_MESSAGE_GROUP({ sessions }, data) {
+      const timestamp = new Date().getTime()
+      let session = sessions.find((item) => item.id === data.to.id)
+      session.messages.push({
+        ...data.to,
+        ...data.mine,
+        groupId: data.to.id,
+        mine: false,
+        type: data.to.type,
+        timestamp: data.to.sendTime ? data.to.sendTime : timestamp,
       })
     },
     // 创建会话
@@ -90,7 +104,7 @@ const chat = {
     },
     // 选择会话
     SELECT_SESSION(state, to) {
-      state.currentSession = to
+      state.curSession = to
     },
     // 搜索
     SET_FILTER_KEY(state, value) {
@@ -154,7 +168,7 @@ const chat = {
       })
     },
     // TODO: 需要处理群聊天的情况
-    sendMessage: ({ commit, state: { currentSession, mine } }, content) => {
+    sendMessage: ({ commit, state: { curSession, mine } }, content) => {
       let data = {
         mine: {
           avatar: mine.avatar,
@@ -164,12 +178,12 @@ const chat = {
           username: mine.username,
         },
         to: {
-          avatar: currentSession.avatar,
-          id: currentSession.id,
-          name: currentSession.groupname,
-          sign: currentSession.sign,
-          type: currentSession.type || 'friend',
-          username: currentSession.username,
+          avatar: curSession.avatar,
+          id: curSession.id,
+          name: curSession.groupname,
+          sign: curSession.sign,
+          type: curSession.type ? 'group' : 'friend',
+          username: curSession.username,
         },
       }
       App.chatWs.sendMsg({
@@ -179,19 +193,41 @@ const chat = {
 
       return commit('SEND_MESSAGE', data)
     },
-    // 处理会话消息
-    receiveMessage: ({ commit, getters: { getTargetSession } }, result) => {
-      // TODO: 还要处理不在当前会话弹窗的情况
-      if (!getTargetSession(result.data.mine.id)) {
-        commit(
-          'CREATE_SESSION',
-          result.data.mine /* 此处的mine是消息的发送者 */,
-        )
+    // 发送申请相关的请求
+    sendApplyMsg(state, to) {
+      let data = {
+        to,
       }
-      return commit('RECEIVE_MESSAGE', result)
+      App.chatWs.sendMsg({
+        type: 'msgbox',
+        data,
+      })
+    },
+    // 处理会话消息
+    receiveMessage: (
+      { commit, getters: { getTargetSession, getTargetGroup } },
+      data,
+    ) => {
+      // TODO: 还要处理不在当前会话弹窗的情况
+      if (data.to.type == 'friend') {
+        if (!getTargetSession(data.mine.id)) {
+          commit('CREATE_SESSION', data.mine /* mine是消息的发送者 */)
+        }
+        commit('RECEIVE_MESSAGE_FRIEND', data)
+      } else if (data.to.type == 'group') {
+        let group = getTargetGroup(data.to.id)
+        if (!group) return console.log('不在该群：' + data.to.id)
+        if (!getTargetSession(data.to.id)) {
+          commit(
+            'CREATE_SESSION',
+            { ...group, ...data.to } /* to是会话所在的群 */,
+          )
+        }
+        commit('RECEIVE_MESSAGE_GROUP', data)
+      }
     },
     // 处理请求消息
-    receiveFind: ({ commit }, msg) => {
+    receiveFind: ({ commit }, data) => {
       // msg = {
       //   "type": "find",
       //   "data": {
@@ -203,10 +239,9 @@ const chat = {
       //     }
       //   }
       // }
-      console.log(msg)
+      console.log(data)
       commit('UPDATE_NEW_FIND_NUM')
     },
-    selectSession: ({ commit }, id) => commit('SELECT_SESSION', id),
     search: ({ commit }, value) => commit('SET_FILTER_KEY', value),
     openChatBox: ({ commit, state }, to) => {
       if (!state.sessions.find((item) => item.id === to.id)) {

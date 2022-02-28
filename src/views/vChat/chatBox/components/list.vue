@@ -3,7 +3,7 @@
     <div
       class="item"
       v-for="item in sessions"
-      :class="{ active: item.id === currentSession.id }"
+      :class="{ active: item.id === curSession.id }"
       :key="item.id"
       @click="selectSession(item.id)"
     >
@@ -25,7 +25,7 @@ const { mapState, mapActions } = createNamespacedHelpers('chat')
 
 export default {
   computed: {
-    ...mapState(['sessions', 'currentSession']),
+    ...mapState(['sessions', 'curSession']),
   },
   methods: {
     ...mapActions(['selectSession']),

@@ -2,6 +2,7 @@
   <div class="text">
     <div class="text-menu">
       <div class="text-menu-left">
+        <!-- 表情 -->
         <div
           class="item"
           @focus="faceboxVisible = true"
@@ -24,6 +25,7 @@
           </div>
           <a-icon type="smile" />
         </div>
+        <!-- 图片 -->
         <div class="item">
           <a-upload
             name="file"
@@ -34,6 +36,7 @@
             <a-icon class="item-icon" type="picture" />
           </a-upload>
         </div>
+        <!-- 文件 -->
         <div class="item">
           <a-upload
             name="file"
@@ -44,6 +47,7 @@
             <a-icon class="item-icon" n type="folder-add" />
           </a-upload>
         </div>
+        <!-- 链接 -->
         <div class="item" tabindex="-1" @focus="delayFocus" @blur="delayBlur">
           <div v-show="linkboxVisible" class="linkbox">
             <a-form-model
@@ -71,15 +75,17 @@
                   @keyup.enter="sendUrl"
                 />
               </a-form-model-item>
-
+              <!-- 不能用a-button组件，会失去焦点 -->
               <div class="btn" @click="sendUrl">发送</div>
             </a-form-model>
           </div>
           <a-icon type="link" />
         </div>
+        <!-- 截图 -->
         <div class="item" @click="screenShot">
           <i style="font-size: 20px" class="item-icon iconfont icon-jietu" />
         </div>
+        <!-- 截图2 -->
         <div class="item" @click="screenShot2">
           <i style="font-size: 20px" class="item-icon iconfont icon-jietu" />
         </div>
@@ -322,6 +328,7 @@ export default {
 
   .linkbox {
     // display: flex;
+    cursor: default;
     width: 374px;
     padding: 20px 10px;
     background-color: #fff;
@@ -332,17 +339,19 @@ export default {
     left: 0;
     .btn {
       float: right;
-      background-color: #5fb878;
-      color: #fff;
-      padding: 0 20px;
+      // background-color: #5fb878;
+      // color: #fff;
+      // padding: 0 20px;
       line-height: 32px;
       border-radius: 3px;
-      margin-right: 10px;
+      margin-right: 15px;
+      cursor: pointer;
       &:hover {
-        background-color: #69bc80;
+        // background-color: #69bc80;
+        text-decoration: underline;
       }
       &:active {
-        background-color: #59b573;
+        // background-color: #59b573;
       }
     }
   }

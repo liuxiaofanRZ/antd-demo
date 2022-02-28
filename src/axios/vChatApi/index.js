@@ -83,3 +83,11 @@ export const agreeFriend = (params) =>
       token: store.state.token,
     },
   })
+
+export const getMembers = (params) =>
+  axios.get('eoa/im/api/getMembers', {
+    params: {
+      ...params,
+      token: store.state.token,
+    },
+  })

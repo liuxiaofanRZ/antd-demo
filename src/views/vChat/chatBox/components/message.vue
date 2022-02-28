@@ -30,12 +30,21 @@ import avatarEmpty from '../../img/avatar_empty.jpg'
 import faceArray from '../../js/faceArray'
 import Vue from 'vue'
 import { transferMessage } from '../../js/util'
+// 异步江内容滚动到底部
+const toBottom = (el) =>
+  Vue.nextTick(() => {
+    el.scrollTop = el.scrollHeight
+  })
+// 监听图片加载成功的方法
+const onImgLoad = (el) => (e) =>
+  e.path[0].className.indexOf('vchat-img') >= 0 && toBottom(el)
+
 export default {
   computed: {
     ...mapState({
       mine: 'mine',
-      session: ({ sessions, currentSession }) =>
-        sessions.find((session) => session.id === currentSession.id),
+      session: ({ sessions, curSession }) =>
+        sessions.find((session) => session.id === curSession.id),
     }),
   },
   data() {
@@ -46,6 +55,9 @@ export default {
   },
   methods: {
     transferMessage,
+    imgLoaded(e) {
+      console.log('img', e)
+    },
   },
   filters: {
     // 将日期过滤为 hour:minutes
@@ -60,10 +72,11 @@ export default {
   },
   directives: {
     // 发送消息后滚动到底部
-    'scroll-bottom'(el) {
-      Vue.nextTick(() => {
-        el.scrollTop = el.scrollHeight
-      })
+    'scroll-bottom': {
+      bind(el) {
+        el.addEventListener('load', onImgLoad(el), true)
+      },
+      update: toBottom,
     },
   },
 }
@@ -112,7 +125,7 @@ export default {
   .text {
     display: inline-block;
     position: relative;
-    padding: 10px;
+    padding: 8px 15px;
     max-width: ~'calc(100% - 150px)';
     min-height: 30px;
     // line-height: 2.5;

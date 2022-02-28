@@ -65,9 +65,9 @@ export default {
           console.log(JSON.parse(res))
           let msg = JSON.parse(res)
           if (msg.type === 'chatMessage') {
-            this.receiveMessage(msg)
+            this.receiveMessage(msg.data)
           } else if (msg.type === 'find') {
-            this.receiveFind(msg)
+            this.receiveFind(msg.data)
           } else if (msg.type === 'msgBox') {
             console.log(msg.data)
           }
@@ -98,7 +98,7 @@ export default {
     max-width: 155px;
   }
   .vchat-img {
-    max-width: 100px;
+    max-width: 100%;
   }
   .vchat-link {
     &:hover {

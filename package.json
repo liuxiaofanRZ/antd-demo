@@ -13,6 +13,7 @@
     "core-js": "^3.6.5",
     "html2canvas": "^1.4.1",
     "kscreenshot": "^1.2.3",
+    "lodash.debounce": "^4.0.8",
     "vue": "^2.6.11",
     "vue-infinite-scroll": "^2.0.2",
     "vue-router": "^3.2.0",
