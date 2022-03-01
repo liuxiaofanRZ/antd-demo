@@ -15,7 +15,7 @@ Vue.config.productionTip = false
 import customTree from './views/customTree/customTree.vue'
 Vue.component('custom-tree', customTree)
 
-Vue.directive('vchatDraggable', {
+Vue.directive('vcdrag', {
   inserted: function (el, binding) {
     let bar = el.querySelector('#' + binding.value)
     bar.style.cursor = 'move'

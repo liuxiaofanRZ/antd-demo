@@ -24,3 +24,35 @@ export default {
   },
 }
 </script>
+
+<style lang="less">
+.vchat-header {
+  display: flex;
+  padding: 0 10px;
+  height: 40px;
+  align-items: center;
+  background-color: rgba(245, 245, 245, 0.7);
+  &-left,
+  &-middle,
+  &-right {
+    flex: none;
+  }
+  &-middle {
+    flex: 1;
+  }
+  &-title {
+    padding: 0 5px;
+  }
+  &-menu {
+    display: flex;
+    &-item {
+      margin: 0 5px;
+      font-size: 18px;
+      cursor: pointer;
+      &:hover {
+        opacity: 0.7;
+      }
+    }
+  }
+}
+</style>

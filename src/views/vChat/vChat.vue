@@ -1,21 +1,16 @@
 <template>
   <div v-if="token" class="vchat">
-    <!-- 面板窗口 -->
-    <chat-board></chat-board>
-    <!-- 聊天窗口 -->
-    <chat-box v-vchat-draggable="'vchatboxdragbar'"></chat-box>
-    <!-- 查找窗口 -->
-    <chat-find v-vchat-draggable="'vchatfinddragbar'"></chat-find>
-    <!-- 消息盒子窗口 -->
-    <chat-apply v-vchat-draggable="'vchatapplydragbar'"></chat-apply>
+    <!-- 聊天悬浮按钮 -->
+    <vchat-btn></vchat-btn>
+    <!-- 主窗口 -->
+    <vchat-main v-vcdrag="'vchatboxdragbar'"></vchat-main>
   </div>
 </template>
 
 <script>
-import chatBox from './chatBox/chatBox.vue'
-import chatFind from './chatFind/chatFind.vue'
-import chatBoard from './chatBoard/chatBoard.vue'
-import chatApply from './chatApply/chatApply.vue'
+import vchatBtn from './chatBtn/chatBtn.vue'
+import vchatMain from './chatMain/chatMain.vue'
+
 import { mapState, createNamespacedHelpers } from 'vuex'
 const { mapActions: mapActionsChat } = createNamespacedHelpers('chat')
 import { queryMsgBoxCount } from '@/axios/vChatApi'
@@ -25,7 +20,7 @@ import { BASE_URL } from '@/util/env'
 
 export default {
   name: 'vChat',
-  components: { chatBoard, chatBox, chatFind, chatApply },
+  components: { vchatMain, vchatBtn },
   data() {
     return {
       ws: null,
@@ -44,7 +39,6 @@ export default {
     },
   },
   destroyed() {
-    console.log(this.$root)
     this.$root.chatWs.close()
   },
   methods: {
@@ -85,17 +79,18 @@ export default {
 @borderRadius: 2px;
 .vchat {
   position: fixed;
+  width: 0;
+  height: 0;
   right: 0;
   bottom: 0;
   font-size: 16px;
   color: #000;
   z-index: 10;
 
-  .vchat-board-ellipsis {
+  .vchat-ellipsis {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    max-width: 155px;
   }
   .vchat-img {
     max-width: 100%;
@@ -103,42 +98,6 @@ export default {
   .vchat-link {
     &:hover {
       text-decoration: underline;
-    }
-  }
-
-  .ellipsis {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .vchat-header {
-    display: flex;
-    padding: 0 10px;
-    height: 40px;
-    align-items: center;
-    background-color: rgba(245, 245, 245, 0.7);
-    &-left,
-    &-middle,
-    &-right {
-      flex: none;
-    }
-    &-middle {
-      flex: 1;
-    }
-    &-title {
-      padding: 0 5px;
-    }
-    &-menu {
-      display: flex;
-      &-item {
-        margin: 0 5px;
-        font-size: 18px;
-        cursor: pointer;
-        &:hover {
-          opacity: 0.7;
-        }
-      }
     }
   }
 }

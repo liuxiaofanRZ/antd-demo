@@ -109,7 +109,7 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapActions } = createNamespacedHelpers('chat')
-import faceArray from '../../js/faceArray'
+import faceArray from '../../../js/faceArray'
 import { BASE_URL } from '@/util/env'
 import html2canvas from 'html2canvas'
 

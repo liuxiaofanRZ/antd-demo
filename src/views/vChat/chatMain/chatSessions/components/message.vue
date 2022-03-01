@@ -26,10 +26,9 @@
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('chat')
-import avatarEmpty from '../../img/avatar_empty.jpg'
-import faceArray from '../../js/faceArray'
+import faceArray from '../../../js/faceArray'
 import Vue from 'vue'
-import { transferMessage } from '../../js/util'
+import { transferMessage } from '../../../js/util'
 // 异步江内容滚动到底部
 const toBottom = (el) =>
   Vue.nextTick(() => {
@@ -49,7 +48,6 @@ export default {
   },
   data() {
     return {
-      avatarEmpty,
       faceArray,
     }
   },

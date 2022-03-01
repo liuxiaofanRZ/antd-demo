@@ -98,7 +98,7 @@
     <!-- 添加人/群 -->
     <div
       class="vchat-find-ask"
-      v-vchat-draggable="'vchatfindaskdragbar'"
+      v-vcdrag="'vchatfindaskdragbar'"
       v-if="askFormVisible"
     >
       <vchat-header
@@ -154,7 +154,7 @@
     <!-- 创建群 -->
     <div
       class="vchat-find-create"
-      v-vchat-draggable="'vchatfindcreatedragbar'"
+      v-vcdrag="'vchatfindcreatedragbar'"
       v-if="createFormVisible"
     >
       <vchat-header

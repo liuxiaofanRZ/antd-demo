@@ -1,9 +1,7 @@
 <template>
   <div class="headline" id="vchatboxdragbar">
     <div class="title ellipsis">
-      {{
-        curSession.type == 'friend' ? curSession.username : curSession.groupName
-      }}
+      {{ curSession.type ? curSession.groupName : curSession.username }}
     </div>
     <div v-if="curSession.type == 'group'" class="members">
       <span @click="show = !show" class="count">
@@ -11,18 +9,15 @@
         <a-icon type="down" :rotate="show ? 180 : 0" />
       </span>
     </div>
-    <vchat-headmenu></vchat-headmenu>
   </div>
 </template>
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('chat')
-import vchatHeadmenu from './headmenu'
 import { getMembers } from '@/axios/vChatApi'
 export default {
   name: 'headline',
-  components: { vchatHeadmenu },
   data() {
     return {
       members: [],

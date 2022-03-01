@@ -33,6 +33,11 @@ const chat = {
     // applyGroupList: [],
     // // 申请加好友的消息列表
     // applyFriendList: []
+
+    // 显示聊天面板
+    isChatOpen: false,
+    // 当前模块 'sesssion','addresslist'
+    curModule: 'session',
   },
   getters: {
     getTargetSession:
@@ -98,6 +103,10 @@ const chat = {
         messages: [],
       })
     },
+    // 删除会话
+    REMOVE_SESSION(state, index) {
+      state.sessions.splice(index, 1)
+    },
     // 创建会话列表
     INIT_SESSIONS(state, sessions) {
       state.sessions = sessions
@@ -146,6 +155,15 @@ const chat = {
     // UPDATE_APPLY_FRIEDN_LIST(state, list) {
     //   state.applyFriendList = list
     // },
+
+    // 打开聊天面板
+    TOGGLE_CHAT(state, value) {
+      state.isChatOpen = typeof value != 'boolean' ? !state.isChatOpen : value
+    },
+    // 设置当前模块
+    SET_MODULE(state, value) {
+      state.curModule = value
+    },
   },
   actions: {
     // 获取用户聊天模块的基本信息和历史会话数据
@@ -249,6 +267,7 @@ const chat = {
       }
       commit('TOGGLE_CHAT_BOX', true)
       commit('SELECT_SESSION', to)
+      commit('SET_MODULE', 'session')
     },
     closeChatBox: ({ commit }) => {
       commit('TOGGLE_CHAT_BOX', false)
@@ -296,6 +315,19 @@ const chat = {
     addGroup: ({ commit, state: { mine } }, groupInfo) => {
       if (!groupInfo.groupName) groupInfo.groupName = '佚名'
       commit('ADD_GROUP', { userId: mine.id, ...groupInfo })
+    },
+    // 打开聊天面板
+    showChat({ commit }, value) {
+      commit('TOGGLE_CHAT', value)
+    },
+    // 设置当前模块
+    setModule({ commit }, value) {
+      commit('SET_MODULE', value)
+    },
+    // 删除会话
+    removeSession({ commit }, index) {
+      console.log(index);
+      commit('REMOVE_SESSION', index)
     },
   },
 }
