@@ -1,23 +1,35 @@
 <template>
   <div class="vchat-board">
     <!-- 聊天菜单 -->
-    <div class="vchat-board-search">查询</div>
+    <div class="vchat-board-search">
+      <a-input
+        ref="userNameInput"
+        v-model="searchValue"
+        placeholder="搜索"
+        size="small"
+        allow-clear
+      >
+        <a-icon slot="prefix" type="search" />
+      </a-input>
+    </div>
     <div class="vchat-board-main">
       <div
         class="vchat-board-session"
         @click="openChatBox(s)"
-        v-for="(s, index) in sessions"
+        v-for="s in sessions"
         :key="s.id"
         :class="{ select: s.id == curSession.id }"
-        @contextmenu.prevent="contextmenu(index)"
+        @contextmenu.prevent="contextmenu(s)"
       >
-        <a-avatar
-          shape="square"
-          :size="36"
-          :src="s.avatar"
-          alt="头像"
-          icon="user"
-        />
+        <a-badge :numberStyle="numberStyle" :count="s.newMsgCount">
+          <a-avatar
+            shape="square"
+            :size="36"
+            :src="s.avatar"
+            alt="头像"
+            icon="user"
+          />
+        </a-badge>
 
         <div class="vchat-board-session-info">
           <div class="vchat-board-session-name vchat-board-ellipsis">
@@ -30,8 +42,16 @@
       </div>
     </div>
     <vchat-contextmenu :visible.sync="contextmenuVisible">
-      <div style="cursor: pointer" @mousedown="removeSession(curIndex)">
-        删除会话
+      <div class="vchat-board-ctx">
+        <div
+          class="vchat-board-ctx-item"
+          @mousedown="removeSession(curMenuItem.id)"
+        >
+          删除该会话
+        </div>
+        <div class="vchat-board-ctx-item" @mousedown="removeSession()">
+          清空会话列表
+        </div>
       </div>
     </vchat-contextmenu>
   </div>
@@ -49,16 +69,40 @@ export default {
     vchatContextmenu,
   },
   data() {
-    return { contextmenuVisible: false }
+    return {
+      contextmenuVisible: false,
+      searchValue: '',
+      numberStyle: {
+        minWidth: '18px',
+        padding: '0',
+        height: '18px',
+        lineHeight: '17px',
+        boxShadow: 'none',
+      },
+    }
   },
   computed: {
-    ...mapState(['sessions', 'curSession']),
+    ...mapState({
+      sessions(state) {
+        if (this.searchValue) {
+          return state.sessions.filter(
+            (session) =>
+              (session.type ? session.groupName : session.username).indexOf(
+                this.searchValue,
+              ) >= 0,
+          )
+        } else {
+          return state.sessions
+        }
+      },
+      curSession: 'curSession',
+    }),
   },
 
   methods: {
     ...mapActions(['openChatBox', 'removeSession']),
-    contextmenu(index) {
-      this.curIndex = index
+    contextmenu(item) {
+      this.curMenuItem = item
       this.contextmenuVisible = true
     },
   },
@@ -73,10 +117,9 @@ export default {
   background-color: #eee;
 
   &-search {
-    padding: 10px 12px 0;
+    padding: 22px 12px 0;
     height: 59px;
-    background-color: #fff;
-    // border-bottom: 1px solid #d9d9d9;
+    background-color: #f7f7f7;
     box-sizing: border-box;
   }
   // 内容
@@ -110,16 +153,18 @@ export default {
     }
   }
   // 菜单
-  &-menu {
-    height: 40px;
-    line-height: 40px;
-    background-color: #f6f6f6;
-    display: flex;
-    font-size: 22px;
+  &-ctx {
+    background-color: #fff;
+    box-shadow: 2px 2px 10px #aaa;
+    border-radius: 2px;
+    overflow: hidden;
+    font-size: 12px;
+    line-height: 25px;
     &-item {
-      margin: 0 10px;
-      .anticon {
-        font-size: 22px;
+      padding: 0 25px;
+      cursor: default;
+      &:hover {
+        background-color: #e2e2e2;
       }
     }
   }

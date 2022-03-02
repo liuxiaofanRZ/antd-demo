@@ -1,5 +1,5 @@
 <template>
-  <div class="message" v-scroll-bottom>
+  <div class="message" v-vc-scroll-bottom>
     <div v-if="session">
       <div class="more" v-if="session.hasMore"><span>查看更多记录</span></div>
       <div class="item" v-for="(item, index) in session.messages" :key="index">
@@ -27,16 +27,7 @@
 import { createNamespacedHelpers } from 'vuex'
 const { mapState } = createNamespacedHelpers('chat')
 import faceArray from '../../../js/faceArray'
-import Vue from 'vue'
-import { transferMessage } from '../../../js/util'
-// 异步江内容滚动到底部
-const toBottom = (el) =>
-  Vue.nextTick(() => {
-    el.scrollTop = el.scrollHeight
-  })
-// 监听图片加载成功的方法
-const onImgLoad = (el) => (e) =>
-  e.path[0].className.indexOf('vchat-img') >= 0 && toBottom(el)
+import { transferMessage, vcScrollBottom } from '../../../js/util'
 
 export default {
   computed: {
@@ -69,13 +60,7 @@ export default {
     },
   },
   directives: {
-    // 发送消息后滚动到底部
-    'scroll-bottom': {
-      bind(el) {
-        el.addEventListener('load', onImgLoad(el), true)
-      },
-      update: toBottom,
-    },
+    vcScrollBottom,
   },
 }
 </script>
@@ -130,7 +115,7 @@ export default {
     font-size: 12px;
     text-align: left;
     word-break: break-all;
-    background-color: #fafafa;
+    background-color: #fff;
     border-radius: 4px;
     white-space: pre-line;
     &:before {

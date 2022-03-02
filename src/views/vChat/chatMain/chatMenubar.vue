@@ -12,13 +12,27 @@
     <div class="vchat-meunbar-tabs">
       <div
         class="vchat-menubar-tab"
-        v-for="tab in tabs"
+        v-for="(tab, key) in moduleTabs"
         :key="tab.item"
         :title="tab.title"
-        :class="{ select: curModule == tab.id }"
-        @click="setModule(tab.id)"
+        :class="{ select: curModule == key }"
+        @click="setModule(key)"
       >
-        <a-icon :type="tab.icon" />
+        <template v-if="key === 'session'">
+          <a-badge :count="newSessionCount" :numberStyle="numberStyle">
+            <a-icon class="vchat-menubar-tab-icon" :type="tab.icon" />
+          </a-badge>
+        </template>
+        <template v-else-if="key === 'applyBack'">
+          <a-badge :count="newApplyBackCount" :numberStyle="numberStyle">
+            <a-icon class="vchat-menubar-tab-icon" :type="tab.icon" />
+          </a-badge>
+        </template>
+        <template v-else>
+          <a-badge dot :count="tab.newMsgCount">
+            <a-icon class="vchat-menubar-tab-icon" :type="tab.icon" />
+          </a-badge>
+        </template>
       </div>
     </div>
   </div>
@@ -26,28 +40,23 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapState, mapActions } = createNamespacedHelpers('chat')
+const { mapState, mapGetters, mapActions } = createNamespacedHelpers('chat')
 export default {
   name: 'chatMenubar',
   data() {
     return {
-      tabs: [
-        {
-          title: '聊天',
-          icon: 'message',
-          id: 'session',
-        },
-        {
-          title: '通讯录',
-          icon: 'team',
-          id: 'addresslist',
-        },
-      ],
-      curId: 1,
+      numberStyle: {
+        minWidth: '18px',
+        padding: '0',
+        height: '18px',
+        lineHeight: '17px',
+        boxShadow: 'none',
+      },
     }
   },
   computed: {
-    ...mapState(['mine', 'curModule']),
+    ...mapState(['mine', 'curModule', 'moduleTabs']),
+    ...mapGetters(['newSessionCount', 'newApplyBackCount']),
   },
   methods: {
     ...mapActions(['setModule']),
@@ -77,6 +86,9 @@ export default {
     text-align: center;
     color: #7e7e7e;
     cursor: pointer;
+    &-icon {
+      font-size: 20px;
+    }
     &:hover {
       color: #a3a3a3;
     }

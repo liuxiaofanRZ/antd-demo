@@ -51,7 +51,5 @@ export default {
   top: 0;
   left: 0;
   z-index: 999999;
-  box-shadow: 2px 2px 10px #aaa;
-  background-color: #fff;
 }
 </style>

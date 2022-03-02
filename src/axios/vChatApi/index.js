@@ -1,9 +1,14 @@
 import { axios } from '@/axios/service'
 import store from '@/store'
+import { BASE_URL } from '@/util/env'
 
 export const getList = (params) =>
   axios.get('eoa/im/api/getList', {
-    params: { ...params, token: store.state.token },
+    params: {
+      ...params,
+      userId: store.state.info.id,
+      token: store.state.token,
+    },
   })
 
 export const queryMsgBoxCount = (params = {}) =>
@@ -88,6 +93,33 @@ export const getMembers = (params) =>
   axios.get('eoa/im/api/getMembers', {
     params: {
       ...params,
+      token: store.state.token,
+    },
+  })
+
+export const leaveGroup = (params) =>
+  axios.get('eoa/im/api/leaveGroup', {
+    params: {
+      ...params,
+      userId: store.state.info.id,
+      token: store.state.token,
+    },
+  })
+export const removeFriend = (params) =>
+  axios.get('eoa/im/api/removeFriend', {
+    params: {
+      ...params,
+      userId: store.state.info.id,
+      token: store.state.token,
+    },
+  })
+
+export const queryChatLogList = (params) =>
+  axios.get('eoa/im/api/queryChatLogList', {
+    params: {
+      ...params,
+      domianURL: BASE_URL,
+      userId: store.state.info.id,
       token: store.state.token,
     },
   })

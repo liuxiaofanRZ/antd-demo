@@ -91,7 +91,7 @@
         </div>
       </div>
       <div class="text-menu-right">
-        <div class="item">
+        <div class="item" @click="openChatHistory(curSession)">
           <a-icon class="item-icon" type="history" />
           <span class="txt">聊天记录</span>
         </div>
@@ -108,7 +108,7 @@
 
 <script>
 import { createNamespacedHelpers } from 'vuex'
-const { mapActions } = createNamespacedHelpers('chat')
+const { mapState, mapActions } = createNamespacedHelpers('chat')
 import faceArray from '../../../js/faceArray'
 import { BASE_URL } from '@/util/env'
 import html2canvas from 'html2canvas'
@@ -153,6 +153,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(['curSession']),
     uploadFileUrl() {
       console
       return (
@@ -161,7 +162,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(['sendMessage']),
+    ...mapActions(['sendMessage', 'openChatHistory']),
     delayBlur() {
       this.delaySetTimeout = setTimeout(() => {
         this.linkboxVisible = false

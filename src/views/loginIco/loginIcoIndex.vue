@@ -49,7 +49,7 @@ export default {
   data() {
     return {
       form: {
-        username: 'liuxiaofan',
+        username: '15166180938',
         password: '1111',
         inputCode: '111',
       },

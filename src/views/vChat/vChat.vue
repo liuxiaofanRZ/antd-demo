@@ -3,13 +3,19 @@
     <!-- 聊天悬浮按钮 -->
     <vchat-btn></vchat-btn>
     <!-- 主窗口 -->
-    <vchat-main v-vcdrag="'vchatboxdragbar'"></vchat-main>
+    <vchat-main id="vchat_main_drag"></vchat-main>
+    <!-- 查找窗口 -->
+    <vchat-find id="vchat_find_drag"></vchat-find>
+    <!-- 聊天记录 -->
+    <vchat-history id="vchat_history_drag"></vchat-history>
   </div>
 </template>
 
 <script>
 import vchatBtn from './chatBtn/chatBtn.vue'
 import vchatMain from './chatMain/chatMain.vue'
+import vchatFind from './chatFind/chatFind.vue'
+import vchatHistory from './chatHistory/chatHistory.vue'
 
 import { mapState, createNamespacedHelpers } from 'vuex'
 const { mapActions: mapActionsChat } = createNamespacedHelpers('chat')
@@ -20,7 +26,7 @@ import { BASE_URL } from '@/util/env'
 
 export default {
   name: 'vChat',
-  components: { vchatMain, vchatBtn },
+  components: { vchatMain, vchatBtn, vchatFind, vchatHistory },
   data() {
     return {
       ws: null,
@@ -42,7 +48,7 @@ export default {
     this.$root.chatWs.close()
   },
   methods: {
-    ...mapActionsChat(['receiveMessage', 'receiveFind']),
+    ...mapActionsChat(['receiveMessage', 'receiveFindAsk','receiveApplyBack']),
     initSocket() {
       this.$root.chatWs = new socket({
         isReconnection: false,
@@ -61,9 +67,10 @@ export default {
           if (msg.type === 'chatMessage') {
             this.receiveMessage(msg.data)
           } else if (msg.type === 'find') {
-            this.receiveFind(msg.data)
-          } else if (msg.type === 'msgBox') {
-            console.log(msg.data)
+            this.receiveFindAsk(msg.data)
+          } else if (msg.type === 'msgbox') {
+            console.log(1111111111111111111);
+            this.receiveApplyBack(msg.data)
           }
         },
       }).connect()

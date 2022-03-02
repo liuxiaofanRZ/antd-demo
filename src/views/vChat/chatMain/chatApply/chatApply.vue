@@ -1,7 +1,7 @@
 <template>
-  <div class="vchat-apply" v-if="isChatApplyOpen">
+  <div class="vchat-apply">
     <vchat-header
-      id="vchatapplydragbar"
+      v-vcdrag="'vchat_main_drag'"
       title="消息盒子"
       @close="closeChatApply"
     />
@@ -132,7 +132,7 @@ import {
   agreeGroup,
   agreeFriend,
 } from '@/axios/vChatApi'
-import vchatHeader from '../components/vchatHeader.vue'
+import vchatHeader from '../../components/vchatHeader.vue'
 import infiniteScroll from 'vue-infinite-scroll'
 
 export default {
@@ -167,6 +167,9 @@ export default {
       },
       immediate: true,
     },
+  },
+  created(){
+    this.init()
   },
   computed: {
     ...mapState(['mine', 'friends', 'groups', 'isChatApplyOpen']),
@@ -319,22 +322,15 @@ export default {
 
 <style lang="less">
 .vchat-apply {
-  position: fixed;
-  top: 100px;
-  left: 100px;
-  width: 700px;
-  // height: 600px;
-  box-sizing: content-box;
-  background-color: #fff;
-  overflow: hidden;
-  border-radius: 3px;
-  border: 1px solid #d9d9d9;
+  // display: flex;
+  height: 100%;
+  width: 100%;
   &-main {
     padding: 20px;
     position: relative;
   }
   &-list {
-    height: 400px;
+    height: calc(100% - 40px);
     overflow: auto;
   }
   &-status {

@@ -3,6 +3,8 @@ import {
   updateSign,
   recommendedFriends,
   findLookFor,
+  leaveGroup,
+  removeFriend,
 } from '@/axios/vChatApi'
 import App from '@/main'
 
@@ -27,8 +29,6 @@ const chat = {
     isChatApplyOpen: false,
     // 查找结果
     searchResultList: [],
-    // 新的请求数量
-    newFindNum: 0,
     // // 申请加群的消息列表
     // applyGroupList: [],
     // // 申请加好友的消息列表
@@ -36,8 +36,49 @@ const chat = {
 
     // 显示聊天面板
     isChatOpen: false,
-    // 当前模块 'sesssion','addresslist'
+    // 当前模块 'sesssion','addresslist', 'apply'
     curModule: 'session',
+    // 模块tab
+    moduleTabs: {
+      session: {
+        title: '聊天',
+        icon: 'message',
+        id: 'session',
+        newMsgCount: 0,
+        dot: false,
+      },
+      addresslist: {
+        title: '通讯录',
+        icon: 'team',
+        id: 'addresslist',
+        newMsgCount: 0,
+        dot: true,
+      },
+      apply: {
+        title: '消息盒子',
+        icon: 'notification',
+        id: 'apply',
+        newMsgCount: 0,
+        dot: true,
+      },
+      applyBack: {
+        title: '回复消息',
+        icon:'notification',
+        id: 'applyBack',
+        newMsgCount: 0,
+        dot: false
+      }
+    },
+    // 当前聊天记录的相关信息
+    curHistoryInfo: {
+      id: '',
+      type: '',
+      name: '',
+    },
+    // 聊天记录窗口是否显示
+    isChatHistoryOpen: false,
+    // 回复的消息列表
+    applyBacks: [],
   },
   getters: {
     getTargetSession:
@@ -48,6 +89,10 @@ const chat = {
       ({ groups }) =>
       (id) =>
         groups.find((item) => item.id === id),
+    newSessionCount: ({ sessions }) =>
+      sessions.reduce((acc, cur) => acc + cur.newMsgCount, 0),
+    newApplyBackCount: ({ applyBacks }) =>
+      applyBacks.reduce((acc, cur) => acc + cur.isNew, 0),
   },
   mutations: {
     SET_MINE(state, mine) {
@@ -56,12 +101,32 @@ const chat = {
     SET_FRIENDS(state, friends) {
       state.friends = friends
     },
+    REMOVE_FRIEND({ friends }, friendId) {
+      for (let fgi in friends) {
+        let fg = friends[fgi].list
+        for (let fi in fg) {
+          if (fg[fi].id === friendId) {
+            fg.splice(fi, 1)
+            return
+          }
+        }
+      }
+    },
     SET_GROUPS(state, groups) {
       state.groups = groups
+    },
+    // 删除群
+    REMOVE_GROUP(state, groupId) {
+      let index = state.groups.findIndex((g) => g.id === groupId)
+      state.groups.splice(index, 1)
     },
     // 添加组
     ADD_GROUP(state, group) {
       state.groups.push(group)
+    },
+    // 添加回复的消息
+    ADD_APPLY_BACK(state, applyBack) {
+      state.applyBacks.unshift(applyBack)
     },
     // 发送消息
     SEND_MESSAGE({ sessions, curSession }, data) {
@@ -73,9 +138,18 @@ const chat = {
       })
     },
     // 接收好友消息
-    RECEIVE_MESSAGE_FRIEND({ sessions }, data) {
+    RECEIVE_MESSAGE_FRIEND(
+      { sessions, curSession, curModule, isChatOpen },
+      data,
+    ) {
       const timestamp = new Date().getTime()
       let session = sessions.find((item) => item.id === data.mine.id)
+      // 当前会话处于后台的时候
+      if (
+        !(isChatOpen && curModule === 'session' && curSession.id === session.id)
+      ) {
+        session.newMsgCount++
+      }
       session.messages.push({
         ...data.mine,
         mine: false,
@@ -84,9 +158,18 @@ const chat = {
       })
     },
     // 接收群消息消息
-    RECEIVE_MESSAGE_GROUP({ sessions }, data) {
+    RECEIVE_MESSAGE_GROUP(
+      { sessions, curSession, curModule, isChatOpen },
+      data,
+    ) {
       const timestamp = new Date().getTime()
       let session = sessions.find((item) => item.id === data.to.id)
+      // 当前会话处于后台的时候
+      if (
+        !(isChatOpen && curModule === 'session' && curSession.id === session.id)
+      ) {
+        session.newMsgCount++
+      }
       session.messages.push({
         ...data.to,
         ...data.mine,
@@ -101,19 +184,25 @@ const chat = {
       state.sessions.unshift({
         ...to,
         messages: [],
+        newMsgCount: 0,
       })
     },
     // 删除会话
-    REMOVE_SESSION(state, index) {
+    REMOVE_SESSION(state, id) {
+      let index = state.sessions.findIndex((s) => s.id === id)
+      if (state.sessions[index].id === state.curSession.id) {
+        state.curSession = {}
+      }
       state.sessions.splice(index, 1)
     },
     // 创建会话列表
-    INIT_SESSIONS(state, sessions) {
+    SET_SESSIONS(state, sessions) {
       state.sessions = sessions
     },
-    // 选择会话
-    SELECT_SESSION(state, to) {
-      state.curSession = to
+    // 设置当前会话
+    SET_CURRENT_SESSION(state, session) {
+      session.newMsgCount = 0
+      state.curSession = session
     },
     // 搜索
     SET_FILTER_KEY(state, value) {
@@ -131,6 +220,16 @@ const chat = {
     TOGGLE_CHAT_APPLY(state, value) {
       state.isChatApplyOpen = value
     },
+    TOGGLE_HISTORY_APPLY(state, { value, info }) {
+      state.curHistoryInfo = value
+        ? {
+            id: info.id,
+            type: info.type ? 'group' : 'friend',
+            name: info.type ? info.groupName : info.username,
+          }
+        : {}
+      state.isChatHistoryOpen = value
+    },
     // 更新查找结果
     UPDATE_SEARCH_RESULT(state, value) {
       state.searchResultList = value
@@ -140,11 +239,11 @@ const chat = {
       state.mine.sign = sign
     },
     // 更新请求（新的)数量
-    UPDATE_NEW_FIND_NUM(state, num) {
+    UPDATE_NEW_FIND_NUM({ moduleTabs }, num) {
       if (isNaN(num)) {
-        state.newFindNum++
+        moduleTabs['apply'].newMsgCount++
       } else {
-        state.newFindNum = num
+        moduleTabs['apply'].newMsgCount = num
       }
     },
     // // 更新申请加群的消息列表
@@ -162,6 +261,9 @@ const chat = {
     },
     // 设置当前模块
     SET_MODULE(state, value) {
+      if (value === 'session') {
+        state.curSession.newMsgCount = 0
+      }
       state.curModule = value
     },
   },
@@ -173,9 +275,9 @@ const chat = {
         JSON.parse(localStorage.getItem('CHAT_HISTORY_CHATS')) || {}
       const sessions = historyChats[rootState.info.id] || []
 
-      commit('INIT_SESSIONS', sessions)
+      commit('SET_SESSIONS', sessions)
       // 从后台获取基本信息
-      return getList({ userId: rootState.info.id }).then((res) => {
+      return getList().then((res) => {
         res.data.group.forEach((group) => {
           if (!group.groupName) group.groupName = '佚名'
         })
@@ -227,12 +329,12 @@ const chat = {
       data,
     ) => {
       // TODO: 还要处理不在当前会话弹窗的情况
-      if (data.to.type == 'friend') {
+      if (data.to.type === 'friend') {
         if (!getTargetSession(data.mine.id)) {
           commit('CREATE_SESSION', data.mine /* mine是消息的发送者 */)
         }
         commit('RECEIVE_MESSAGE_FRIEND', data)
-      } else if (data.to.type == 'group') {
+      } else if (data.to.type === 'group') {
         let group = getTargetGroup(data.to.id)
         if (!group) return console.log('不在该群：' + data.to.id)
         if (!getTargetSession(data.to.id)) {
@@ -245,7 +347,7 @@ const chat = {
       }
     },
     // 处理请求消息
-    receiveFind: ({ commit }, data) => {
+    receiveFindAsk: ({ commit }, data) => {
       // msg = {
       //   "type": "find",
       //   "data": {
@@ -260,13 +362,27 @@ const chat = {
       console.log(data)
       commit('UPDATE_NEW_FIND_NUM')
     },
+    // 处理回复消息
+    receiveApplyBack: ({ commit }, { to }) => {
+      console.log(to,111);
+      to.isNew = 1
+      if (to.agree) {
+        getList().then((res) => {
+          res.data.group.forEach((group) => {
+            if (!group.groupName) group.groupName = '佚名'
+          })
+          commit('SET_GROUPS', res.data.group)
+        })
+      }
+      commit('ADD_APPLY_BACK', to)
+    },
     search: ({ commit }, value) => commit('SET_FILTER_KEY', value),
-    openChatBox: ({ commit, state }, to) => {
-      if (!state.sessions.find((item) => item.id === to.id)) {
-        commit('CREATE_SESSION', to)
+    openChatBox: ({ commit, state }, session) => {
+      if (!state.sessions.find((item) => item.id === session.id)) {
+        commit('CREATE_SESSION', session)
       }
       commit('TOGGLE_CHAT_BOX', true)
-      commit('SELECT_SESSION', to)
+      commit('SET_CURRENT_SESSION', session)
       commit('SET_MODULE', 'session')
     },
     closeChatBox: ({ commit }) => {
@@ -295,6 +411,12 @@ const chat = {
     closeChatApply: ({ commit }) => {
       commit('TOGGLE_CHAT_APPLY', false)
     },
+    openChatHistory: ({ commit }, info) => {
+      commit('TOGGLE_HISTORY_APPLY', { value: true, info })
+    },
+    closeChatHistory: ({ commit }) => {
+      commit('TOGGLE_HISTORY_APPLY', { value: false })
+    },
     updateSign: ({ commit, state: { mine } }, sign) => {
       return updateSign({ userId: mine.id, sign }).then((res) => {
         commit('UPDATE_SIGN', sign)
@@ -322,12 +444,41 @@ const chat = {
     },
     // 设置当前模块
     setModule({ commit }, value) {
+      if (value == 'apply') {
+        commit('UPDATE_NEW_FIND_NUM', 0)
+      }
       commit('SET_MODULE', value)
     },
-    // 删除会话
-    removeSession({ commit }, index) {
-      console.log(index);
-      commit('REMOVE_SESSION', index)
+    // 删除会话，参数是session的id，不传则删除所有会话
+    removeSession({ commit }, id) {
+      if (id) {
+        commit('REMOVE_SESSION', id)
+      } else {
+        commit('SET_SESSIONS', [])
+        commit('SET_CURRENT_SESSION', {})
+      }
+    },
+    // 退出群
+    leaveGroup({ commit }, groupId) {
+      return leaveGroup({ groupId }).then((res) => {
+        if (res.success) {
+          commit('REMOVE_GROUP', groupId)
+          return res
+        } else {
+          return Promise.reject(res)
+        }
+      })
+    },
+    // 删除好友
+    removeFriend({ commit }, friendId) {
+      removeFriend({ friendId }).then((res) => {
+        if (res.success) {
+          commit('REMOVE_FRIEND', friendId)
+          return res
+        } else {
+          return Promise.reject(res)
+        }
+      })
     },
   },
 }

@@ -4,19 +4,19 @@
       <vchat-board></vchat-board>
     </div>
     <div class="vchat-session-right">
-      <vchat-message></vchat-message>
+      <vchat-window></vchat-window>
     </div>
   </div>
 </template>
 
 <script>
 import vchatBoard from './components/chatBoard.vue'
-import vchatMessage from './components/chatMessage.vue'
+import vchatWindow from './components/chatWindow.vue'
 export default {
   name: 'chatSession',
   components: {
     vchatBoard,
-    vchatMessage,
+    vchatWindow,
   },
   data() {
     return {}

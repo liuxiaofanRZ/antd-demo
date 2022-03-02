@@ -34,6 +34,7 @@ export default {
   },
   methods: {
     getMembers() {
+      if(!this.curSession.id) return
       getMembers({ id: this.curSession.id }).then((res) => {
         if (res.data) {
           this.members = res.data.list

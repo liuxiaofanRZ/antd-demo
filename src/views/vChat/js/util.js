@@ -1,9 +1,10 @@
 import faceArray from './faceArray'
+import Vue from 'vue'
 export const facesMap = {}
 faceArray.forEach(function (item, index) {
   facesMap[item] = process.env.BASE_URL + 'face/' + index + '.gif'
 })
-//转换内容
+// 转换内容
 export function transferMessage(content) {
   content = (content || '')
     .replace(/&(?!#?[a-zA-Z0-9]+;)/g, '&amp;')
@@ -64,4 +65,22 @@ export function transferMessage(content) {
 
     .replace(/\n/g, '<br>') //转义换行
   return content
+}
+
+/******************************** 指令 ********************************/
+// vcScrollBottom：会话窗口，自动滚动到底部指令
+// 异步将内容滚动到底部
+const toBottom = (el) =>
+  Vue.nextTick(() => {
+    el.scrollTop = el.scrollHeight
+  })
+// 监听图片加载成功
+const onImgLoad = (el) => (e) =>
+  e.path[0].className.indexOf('vchat-img') >= 0 && toBottom(el)
+// 指令对象
+export const vcScrollBottom = {
+  bind(el) {
+    el.addEventListener('load', onImgLoad(el), true)
+  },
+  update: toBottom,
 }

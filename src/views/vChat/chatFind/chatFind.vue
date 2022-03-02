@@ -1,6 +1,10 @@
 <template>
-  <div class="vchat-find" v-if="isChatFindOpen">
-    <vchat-header id="vchatfinddragbar" title="查找" @close="majorClose" />
+  <div class="vchat-find" v-show="isChatFindOpen">
+    <vchat-header
+      v-vcdrag="'vchat_find_drag'"
+      title="查找"
+      @close="majorClose"
+    />
     <div class="vchat-find-main">
       <a-form-model
         class="vchat-find-form"
@@ -96,13 +100,9 @@
     </div>
 
     <!-- 添加人/群 -->
-    <div
-      class="vchat-find-ask"
-      v-vcdrag="'vchatfindaskdragbar'"
-      v-if="askFormVisible"
-    >
+    <div class="vchat-find-ask" v-if="askFormVisible" id="vchat_find_add_bar">
       <vchat-header
-        id="vchatfindaskdragbar"
+        v-vcdrag="'vchat_find_add_bar'"
         :title="
           currentAddItem.type
             ? '加入群组：' + currentAddItem.groupName
@@ -154,11 +154,11 @@
     <!-- 创建群 -->
     <div
       class="vchat-find-create"
-      v-vcdrag="'vchatfindcreatedragbar'"
       v-if="createFormVisible"
+      id="vchat_find_create_bar"
     >
       <vchat-header
-        id="vchatfindcreatedragbar"
+        v-vcdrag="'vchat_find_create_bar'"
         title="创建群"
         @close="subCloseCreate"
       />
