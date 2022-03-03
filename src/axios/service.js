@@ -22,7 +22,10 @@ service.interceptors.request.use((config) => {
     }
   }
   // chat相关的请求是formdata类型
-  if (config.url.indexOf('eoa/im') >= 0) {
+  if (
+    config.url.indexOf('eoa/im') >= 0 &&
+    config.url.indexOf('uploadFile') < 0
+  ) {
     config.headers['Content-Type'] = 'application/x-www-form-urlencoded'
     config.data = qs.stringify(config.data)
   }

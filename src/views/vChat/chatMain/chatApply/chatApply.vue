@@ -3,7 +3,8 @@
     <vchat-header
       v-vcdrag="'vchat_main_drag'"
       title="消息盒子"
-      @close="closeChatApply"
+      noClose
+      height="60px"
     />
     <div class="vchat-apply-main">
       <a-tabs type="card">
@@ -168,7 +169,7 @@ export default {
       immediate: true,
     },
   },
-  created(){
+  created() {
     this.init()
   },
   computed: {
@@ -176,7 +177,7 @@ export default {
   },
   methods: {
     ...mapMutations({ resetApplyNum: 'UPDATE_NEW_FIND_NUM' }),
-    ...mapActions(['openChatApply', 'closeChatApply', 'sendApplyMsg']),
+    ...mapActions(['showChat', 'sendApplyMsg']),
     init() {
       this.resetApplyNum(0)
       this.getApplyFriendList(true)

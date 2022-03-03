@@ -19,8 +19,11 @@
           @click="openChatFind"
         ></a-button>
       </div>
-      <div class="vchat-ads-manage"></div>
       <div class="vchat-ads-groups">
+        <div class="vchat-ads-manage">
+          <a-icon type="team"></a-icon
+          ><span style="margin-left: 10px">通讯录管理</span>
+        </div>
         <!-- 好友的分组 -->
         <div class="vchat-ads-group" v-for="(fg, fgi) in friends" :key="fg.id">
           <div
@@ -152,12 +155,16 @@
         </div>
       </div>
       <div class="vchat-ads-ctx" v-else-if="curMenu === 'friendGroup'">
-        <div class="vchat-ads-ctx-item">同步好友</div>
-        <div class="vchat-ads-ctx-item">添加分组</div>
-        <div class="vchat-ads-ctx-item">重命名</div>
+        <!-- <div class="vchat-ads-ctx-item">同步好友</div> -->
+        <div class="vchat-ads-ctx-item" @mousedown="createFgVisible = true">
+          添加分组
+        </div>
+        <div class="vchat-ads-ctx-item" @mousedown="openFgEdit(curMenuItem)">
+          重命名
+        </div>
       </div>
       <div class="vchat-ads-ctx" v-else-if="curMenu === 'group'">
-        <div class="vchat-ads-ctx-item">创建群</div>
+        <!-- <div class="vchat-ads-ctx-item">创建群</div> -->
         <div class="vchat-ads-ctx-item" @mousedown="openChatBox(curMenuItem)">
           发送群消息
         </div>
@@ -172,6 +179,44 @@
         </div>
       </div>
     </vchat-contextmenu>
+
+    <!-- 创建群 -->
+    <div
+      class="vchat-fg-modal"
+      v-show="createFgVisible"
+      id="vchat_fg_create_bar"
+    >
+      <vchat-header
+        v-vcdrag="'vchat_fg_create_bar'"
+        title="创建分组"
+        @close="createFgVisible = false"
+      />
+      <div class="vchat-fg-modal-form">
+        <div class="vchat-fg-modal-item">
+          <a-input v-model="fgName"></a-input>
+        </div>
+        <div class="vchat-fg-modal-item">
+          <a-button @click="createGroup">确定</a-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 创建群 -->
+    <div class="vchat-fg-modal" v-show="editFgVisible" id="vchat_fg_edit_bar">
+      <vchat-header
+        v-vcdrag="'vchat_fg_edit_bar'"
+        :title="'修改组名：' + curFg.groupname"
+        @close="editFgVisible = false"
+      />
+      <div class="vchat-fg-modal-form">
+        <div class="vchat-fg-modal-item">
+          <a-input v-model="fgNameEdit"></a-input>
+        </div>
+        <div class="vchat-fg-modal-item">
+          <a-button @click="editGroupName">确定</a-button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -179,11 +224,14 @@
 import { createNamespacedHelpers } from 'vuex'
 const { mapActions, mapState } = createNamespacedHelpers('chat')
 import vchatContextmenu from '../../components/vchatContextmenu.vue'
+import { createGroup, editGroupName } from '@/axios/vChatApi'
+import vchatHeader from '../../components/vchatHeader.vue'
 
 export default {
   name: 'chatAddresslist',
   components: {
     vchatContextmenu,
+    vchatHeader,
   },
   data() {
     return {
@@ -193,6 +241,14 @@ export default {
       curIndex: '',
       curMenu: 'friend',
       curMenuItem: {},
+
+      // 创建朋友的分组
+      createFgVisible: false,
+      fgName: '',
+      // 修改朋友组名
+      editFgVisible: false,
+      fgNameEdit: '',
+      curFg: {},
     }
   },
   computed: {
@@ -210,6 +266,7 @@ export default {
       'leaveGroup',
       'removeFriend',
       'openChatHistory',
+      'getList',
     ]),
     select(item) {
       this.curItem = item
@@ -219,6 +276,36 @@ export default {
       this.curIndex = index
       this.curMenuItem = item
       this.contextmenuVisible = true
+    },
+    // 创建好友分组
+    createGroup() {
+      createGroup({ groupName: this.fgName, type: '0' }).then((res) => {
+        if (res.success) {
+          this.$message.success(res.message)
+          this.getList()
+          this.createFgVisible = false
+          this.fgName = ''
+        }
+      })
+    },
+    openFgEdit(curMenuItem) {
+      this.curFg = curMenuItem
+      this.editFgVisible = true
+    },
+    // 编辑好友分组的组名
+    editGroupName() {
+      editGroupName({
+        groupName: this.fgNameEdit,
+        id: this.curFg.id,
+        type: '0',
+      }).then((res) => {
+        if (res.success) {
+          this.$message.success(res.message)
+          this.getList()
+          this.editFgVisible = false
+          this.fgNameEdit = ''
+        }
+      })
     },
   },
 }
@@ -258,7 +345,20 @@ export default {
 
   &-groups {
     height: calc(100% - 59px);
+    padding: 15px 0;
     overflow-y: auto;
+    color: #000;
+  }
+  &-manage {
+    width: 225px;
+    height: 40px;
+    background-color: #fff;
+    margin: 0 auto;
+    line-height: 40px;
+    text-align: center;
+    border: 1px solid #ddd;
+    cursor: pointer;
+    font-size: 14px;
   }
   &-group {
     padding-top: 15px;
@@ -355,6 +455,24 @@ export default {
       cursor: default;
       &:hover {
         background-color: #e2e2e2;
+      }
+    }
+  }
+  .vchat-fg-modal {
+    position: fixed;
+    top: 200px;
+    left: 200px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+    &-form {
+      padding: 30px 40px;
+    }
+    &-item {
+      margin-bottom: 20px;
+      text-align: right;
+      &:last-child {
+        margin-bottom: 0;
       }
     }
   }

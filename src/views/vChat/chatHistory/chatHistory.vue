@@ -24,7 +24,11 @@
             </div>
           </div>
         </div>
-        <a-empty description="无数据" style="margin-top:100px" v-if="!loading && list.length <= 0" />
+        <a-empty
+          description="无数据"
+          style="margin-top: 100px"
+          v-if="!loading && list.length <= 0"
+        />
       </div>
     </a-spin>
     <div class="vchat-history-pagination">

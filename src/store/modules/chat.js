@@ -42,32 +42,36 @@ const chat = {
     moduleTabs: {
       session: {
         title: '聊天',
-        icon: 'message',
+        iconA: 'icon-wechat',
+        iconB: 'icon-wechat2',
         id: 'session',
         newMsgCount: 0,
         dot: false,
       },
       addresslist: {
         title: '通讯录',
-        icon: 'team',
+        iconA: 'icon-tongxunlu',
+        iconB: 'icon-tongxunlu1',
         id: 'addresslist',
         newMsgCount: 0,
         dot: true,
       },
       apply: {
         title: '消息盒子',
-        icon: 'notification',
+        iconA: 'icon-tongzhi1',
+        iconB: 'icon-tongzhigonggao',
         id: 'apply',
         newMsgCount: 0,
         dot: true,
       },
       applyBack: {
-        title: '回复消息',
-        icon:'notification',
+        title: '申请结果',
+        iconA: 'icon-bello',
+        iconB: 'icon-bell',
         id: 'applyBack',
         newMsgCount: 0,
-        dot: false
-      }
+        dot: false,
+      },
     },
     // 当前聊天记录的相关信息
     curHistoryInfo: {
@@ -79,6 +83,10 @@ const chat = {
     isChatHistoryOpen: false,
     // 回复的消息列表
     applyBacks: [],
+    // 打开预览图片窗口
+    isChatPicOpen: false,
+    // 预览的图片src
+    picSrc: '',
   },
   getters: {
     getTargetSession:
@@ -120,13 +128,23 @@ const chat = {
       let index = state.groups.findIndex((g) => g.id === groupId)
       state.groups.splice(index, 1)
     },
-    // 添加组
+    // 添加群
     ADD_GROUP(state, group) {
       state.groups.push(group)
     },
     // 添加回复的消息
     ADD_APPLY_BACK(state, applyBack) {
       state.applyBacks.unshift(applyBack)
+    },
+    // 设置收到的回复消息为已读
+    SET_APPLYBACK_READ(state, index) {
+      if (isNaN(index)) {
+        state.applyBacks.forEach((item) => {
+          item.isNew = 0
+        })
+      } else {
+        state.applyBacks[index].isNew = 0
+      }
     },
     // 发送消息
     SEND_MESSAGE({ sessions, curSession }, data) {
@@ -208,6 +226,16 @@ const chat = {
     SET_FILTER_KEY(state, value) {
       state.filterKey = value
     },
+    // 打开大图预览窗口
+    TOGGLE_CHAT_PIC(state, src) {
+      if (src) {
+        state.picSrc = src
+        state.isChatPicOpen = true
+      } else {
+        state.picSrc = ''
+        state.isChatPicOpen = false
+      }
+    },
     // 打开聊天窗口
     TOGGLE_CHAT_BOX(state, value) {
       state.isChatBoxOpen = value
@@ -268,8 +296,19 @@ const chat = {
     },
   },
   actions: {
+    // 获取基本信息
+    async getList({ commit }) {
+      let res = await getList()
+      res.data.group.forEach((group) => {
+        if (!group.groupName) group.groupName = '佚名'
+      })
+      commit('SET_MINE', res.data.mine)
+      commit('SET_FRIENDS', res.data.friend)
+      commit('SET_GROUPS', res.data.group)
+      return res
+    },
     // 获取用户聊天模块的基本信息和历史会话数据
-    getInitChatInfo: ({ commit, rootState }) => {
+    async getInitChatInfo({ commit, rootState, dispatch }) {
       // 从Storage中获取历史会话数据
       const historyChats =
         JSON.parse(localStorage.getItem('CHAT_HISTORY_CHATS')) || {}
@@ -277,17 +316,9 @@ const chat = {
 
       commit('SET_SESSIONS', sessions)
       // 从后台获取基本信息
-      return getList().then((res) => {
-        res.data.group.forEach((group) => {
-          if (!group.groupName) group.groupName = '佚名'
-        })
-        commit('SET_MINE', res.data.mine)
-        commit('SET_FRIENDS', res.data.friend)
-        commit('SET_GROUPS', res.data.group)
-        return res.data
-      })
+      return dispatch('getList')
     },
-    // TODO: 需要处理群聊天的情况
+    // 发送聊天消息
     sendMessage: ({ commit, state: { curSession, mine } }, content) => {
       let data = {
         mine: {
@@ -313,13 +344,21 @@ const chat = {
 
       return commit('SEND_MESSAGE', data)
     },
-    // 发送申请相关的请求
+    // 发送回复他人申请的信息
     sendApplyMsg(state, to) {
       let data = {
         to,
       }
       App.chatWs.sendMsg({
         type: 'msgbox',
+        data,
+      })
+    },
+    // 发送申请消息
+    sendFindMsg(state, to) {
+      let data = { to }
+      App.chatWs.sendMsg({
+        type: 'find',
         data,
       })
     },
@@ -363,22 +402,21 @@ const chat = {
       commit('UPDATE_NEW_FIND_NUM')
     },
     // 处理回复消息
-    receiveApplyBack: ({ commit }, { to }) => {
-      console.log(to,111);
+    receiveApplyBack: ({ commit, dispatch }, { to }) => {
       to.isNew = 1
-      if (to.agree) {
-        getList().then((res) => {
-          res.data.group.forEach((group) => {
-            if (!group.groupName) group.groupName = '佚名'
-          })
-          commit('SET_GROUPS', res.data.group)
-        })
-      }
       commit('ADD_APPLY_BACK', to)
+
+      if (!to.agree) return
+      dispatch('getList')
+    },
+    // 将收到的回复消息设为已读
+    applybackRead({ commit }, index) {
+      commit('SET_APPLYBACK_READ', index)
     },
     search: ({ commit }, value) => commit('SET_FILTER_KEY', value),
-    openChatBox: ({ commit, state }, session) => {
-      if (!state.sessions.find((item) => item.id === session.id)) {
+    openChatBox: ({ commit, state: { sessions, mine } }, session) => {
+      if (session.id === mine.id) return
+      if (!sessions.find((item) => item.id === session.id)) {
         commit('CREATE_SESSION', session)
       }
       commit('TOGGLE_CHAT_BOX', true)
@@ -433,7 +471,7 @@ const chat = {
         }
       })
     },
-    // 添加组
+    // 添加群
     addGroup: ({ commit, state: { mine } }, groupInfo) => {
       if (!groupInfo.groupName) groupInfo.groupName = '佚名'
       commit('ADD_GROUP', { userId: mine.id, ...groupInfo })

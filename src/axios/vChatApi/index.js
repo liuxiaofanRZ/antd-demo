@@ -50,7 +50,6 @@ export const createGroup = (params) =>
   axios.get('eoa/im/api/createGroup', {
     params: {
       ...params,
-      type: '2',
       userId: store.state.info.id,
       token: store.state.token,
     },
@@ -122,4 +121,17 @@ export const queryChatLogList = (params) =>
       userId: store.state.info.id,
       token: store.state.token,
     },
+  })
+
+export const editGroupName = (params) =>
+  axios.get('eoa/im/api/editGroupName', {
+    params: {
+      ...params,
+      token: store.state.token,
+    },
+  })
+
+export const uploadFile = (params) =>
+  axios.post('eoa/im/api/uploadFile?token=' + store.state.token, params, {
+    headers: { 'Content-Type': 'multipart/form-data' },
   })

@@ -118,7 +118,7 @@
         </tr>
 
         <tr>
-          <td style="width:60px" colspan="1">备注</td>
+          <td style="width: 60px" colspan="1">备注</td>
           <td colspan="4">项目备注</td>
           <td colspan="2">审核</td>
           <td colspan="7">审计人</td>
@@ -179,7 +179,8 @@ export default {
   //   left: 0;
   //   background-color: #fff;
   // }
-  th,td {
+  th,
+  td {
     height: 30px;
   }
   .w30 {

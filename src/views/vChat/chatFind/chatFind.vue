@@ -100,7 +100,7 @@
     </div>
 
     <!-- 添加人/群 -->
-    <div class="vchat-find-ask" v-if="askFormVisible" id="vchat_find_add_bar">
+    <div class="vchat-find-ask" v-show="askFormVisible" id="vchat_find_add_bar">
       <vchat-header
         v-vcdrag="'vchat_find_add_bar'"
         :title="
@@ -154,7 +154,7 @@
     <!-- 创建群 -->
     <div
       class="vchat-find-create"
-      v-if="createFormVisible"
+      v-show="createFormVisible"
       id="vchat_find_create_bar"
     >
       <vchat-header
@@ -230,7 +230,7 @@ export default {
     ...mapState(['friends', 'groups', 'isChatFindOpen', 'searchResultList']),
   },
   methods: {
-    ...mapActions(['closeChatFind', 'findLookFor', 'addGroup']),
+    ...mapActions(['closeChatFind', 'findLookFor', 'addGroup', 'sendFindMsg']),
     // 关闭主面板
     majorClose() {
       this.subCloseAsk()
@@ -274,6 +274,12 @@ export default {
       }
       return sendFriendApply(params).then((res) => {
         if (res.success) {
+          this.sendFindMsg({
+            content: '申请添加你为好友',
+            id: params.msgTo,
+            system: true,
+            type: type ? 'group' : 'friend',
+          })
           this.$message.success(res.message)
           this.subCloseAsk()
           return res
@@ -308,7 +314,7 @@ export default {
     },
     // 创建群
     createGroup() {
-      createGroup({ ...this.createForm }).then((res) => {
+      createGroup({ ...this.createForm, type: '2' }).then((res) => {
         if (res.success) {
           this.$message.success(res.message)
           this.addGroup({ ...this.createForm, id: res.result, type: '2' })

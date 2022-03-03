@@ -1,5 +1,10 @@
 <template>
   <div class="vchat-main" v-show="isChatOpen">
+    <div class="vchat-main-menubar">
+      <span @click="showChat" class="vchat-main-menubar-item close"
+        ><a-icon type="close"></a-icon
+      ></span>
+    </div>
     <div class="vchat-main-left">
       <vchat-menubar></vchat-menubar>
     </div>
@@ -33,13 +38,13 @@ export default {
     vchatSessions,
     vchatAddresslist,
     vchatApply,
-    vchatApplyback
+    vchatApplyback,
   },
   computed: {
     ...mapState(['isChatOpen', 'curModule']),
   },
   methods: {
-    ...mapActions(['getInitChatInfo']),
+    ...mapActions(['getInitChatInfo', 'showChat']),
   },
   created() {
     this.getInitChatInfo()
@@ -61,6 +66,31 @@ export default {
   border-radius: 3px;
   border: 1px solid #d9d9d9;
   background-color: #fff;
+
+  &-menubar {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 25px;
+    cursor: pointer;
+    z-index: 10;
+    text-align: center;
+    display: flex;
+    &-item {
+      flex: none;
+      width: 35px;
+      color: #444;
+      font-size: 12px;
+      line-height: 25px;
+      &:hover {
+        background-color: #e2e2e2;
+      }
+      &.close:hover {
+        color: #fff;
+        background-color: #fb7373;
+      }
+    }
+  }
 
   &-left,
   &-right {

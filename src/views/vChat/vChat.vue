@@ -8,6 +8,20 @@
     <vchat-find id="vchat_find_drag"></vchat-find>
     <!-- 聊天记录 -->
     <vchat-history id="vchat_history_drag"></vchat-history>
+
+    <div
+      id="vchat_pic_drag"
+      v-show="isChatPicOpen"
+      v-vcdrag="'vchat_pic_drag'"
+      class="vchat-pic"
+    >
+      <a-icon
+        class="vchat-pic-close"
+        @click="TOGGLE_CHAT_PIC()"
+        type="close"
+      ></a-icon>
+      <img v-if="picSrc" :src="picSrc" alt="" />
+    </div>
   </div>
 </template>
 
@@ -18,7 +32,11 @@ import vchatFind from './chatFind/chatFind.vue'
 import vchatHistory from './chatHistory/chatHistory.vue'
 
 import { mapState, createNamespacedHelpers } from 'vuex'
-const { mapActions: mapActionsChat } = createNamespacedHelpers('chat')
+const {
+  mapState: mapStateChat,
+  mapMutations: mapMutationsChat,
+  mapActions: mapActionsChat,
+} = createNamespacedHelpers('chat')
 import { queryMsgBoxCount } from '@/axios/vChatApi'
 
 import socket from '@/socket/service'
@@ -34,6 +52,7 @@ export default {
   },
   computed: {
     ...mapState(['token', 'info']),
+    ...mapStateChat(['picSrc', 'isChatPicOpen']),
   },
   watch: {
     token(token) {
@@ -48,7 +67,9 @@ export default {
     this.$root.chatWs.close()
   },
   methods: {
-    ...mapActionsChat(['receiveMessage', 'receiveFindAsk','receiveApplyBack']),
+    ...mapMutationsChat(['TOGGLE_CHAT_PIC']),
+
+    ...mapActionsChat(['receiveMessage', 'receiveFindAsk', 'receiveApplyBack']),
     initSocket() {
       this.$root.chatWs = new socket({
         isReconnection: false,
@@ -69,7 +90,6 @@ export default {
           } else if (msg.type === 'find') {
             this.receiveFindAsk(msg.data)
           } else if (msg.type === 'msgbox') {
-            console.log(1111111111111111111);
             this.receiveApplyBack(msg.data)
           }
         },
@@ -102,9 +122,41 @@ export default {
   .vchat-img {
     max-width: 100%;
   }
-  .vchat-link {
-    &:hover {
+  .vchat-link:hover {
+    cite {
       text-decoration: underline;
+    }
+    .vchat-download {
+      color: #888;
+    }
+  }
+  .vchat-download {
+    font-size: 60px;
+    display: block;
+    text-align: center;
+    color: #666;
+  }
+  .vchat-line {
+    border-bottom: 1px solid #eee;
+    margin: 20px 0;
+  }
+
+  .vchat-pic {
+    position: fixed;
+    left: 100px;
+    top: 200px;
+    background-color: #fff;
+    z-index: 10;
+    max-width: 90%;
+    &-close {
+      position: absolute;
+      top: -20px;
+      right: -20px;
+      background-color: #fff;
+      cursor: pointer;
+    }
+    img {
+      width: 100%;
     }
   }
 }

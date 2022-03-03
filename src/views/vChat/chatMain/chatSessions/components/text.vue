@@ -85,10 +85,6 @@
         <div class="item" @click="screenShot">
           <i style="font-size: 20px" class="item-icon iconfont icon-jietu" />
         </div>
-        <!-- 截图2 -->
-        <div class="item" @click="screenShot2">
-          <i style="font-size: 20px" class="item-icon iconfont icon-jietu" />
-        </div>
       </div>
       <div class="text-menu-right">
         <div class="item" @click="openChatHistory(curSession)">
@@ -103,6 +99,14 @@
       @keydown.prevent.enter
       @keyup.enter="onKeyup"
     ></textarea>
+    <div
+      class="text-send"
+      @click="onKeyup"
+      size="small"
+      title="按Enter键发送，按Ctrl+Enter键换行"
+    >
+      发送(S)
+    </div>
   </div>
 </template>
 
@@ -110,8 +114,9 @@
 import { createNamespacedHelpers } from 'vuex'
 const { mapState, mapActions } = createNamespacedHelpers('chat')
 import faceArray from '../../../js/faceArray'
+import { dataURLtoFile } from '../../../js/util'
+import { uploadFile } from '@/axios/vChatApi'
 import { BASE_URL } from '@/util/env'
-import html2canvas from 'html2canvas'
 
 import kscreenshot from 'kscreenshot'
 
@@ -144,10 +149,22 @@ export default {
       kscreenshot: new kscreenshot({
         key: 65,
         endCB: (noob) => {
-          console.log(noob)
+          // base64转File对象
+          let file = dataURLtoFile(
+            noob,
+            'screenshot_' + new Date().getTime() + '.png',
+          )
+          // 创建FormData对象
+          let params = new FormData()
+          params.append('file', file)
+          uploadFile(params).then((res) => {
+            let content = `img[${res.data.src}]`
+            console.log(content)
+            this.sendMessage(content)
+          })
         },
-        cancelCB: (noob) => {
-          console.log(noob)
+        cancelCB: () => {
+          console.log('取消截图')
         },
       }),
     }
@@ -155,7 +172,6 @@ export default {
   computed: {
     ...mapState(['curSession']),
     uploadFileUrl() {
-      console
       return (
         BASE_URL + '/eoa/im/api/uploadFile?token=' + this.$store.state.token
       )
@@ -221,29 +237,6 @@ export default {
     screenShot() {
       this.kscreenshot.startScreenShot()
     },
-    screenShot2() {
-      const $this = this
-      html2canvas(document.querySelector('body'), {
-        useCORS: true,
-        foreignObjectRenderign: true,
-        allowTaint: false,
-      }).then(function (canvas) {
-        let imageurl = canvas.toDataURL('image/png')
-        let imagename = '文件名称'
-        $this.fileDownload(imageurl, imagename)
-      })
-    },
-    //下载截屏图片
-    fileDownload(downloadUrl, downloadName) {
-      let aLink = document.createElement('a')
-      aLink.style.display = 'none'
-      aLink.href = downloadUrl
-      aLink.download = `${downloadName}.jpg`
-      // 触发点击-然后移除
-      document.body.appendChild(aLink)
-      aLink.click()
-      document.body.removeChild(aLink)
-    },
   },
 }
 </script>
@@ -253,6 +246,34 @@ export default {
   height: 200px;
   border-top: solid 1px #ddd;
   white-space: pre-line;
+  position: relative;
+  &:focus {
+    background: transparent;
+  }
+
+  &-send {
+    position: absolute;
+    right: 30px;
+    bottom: 5px;
+    cursor: pointer;
+    background-color: #f5f5f5;
+    color: #666;
+    width: 65px;
+    height: 25px;
+    font-size: 14px;
+    line-height: 24px;
+    border: 1px solid #ddd;
+    text-align: center;
+    &:hover {
+      background-color: #129611;
+      border-color: #129611;
+      color: #fff;
+    }
+    &:active {
+      background-color: #1aad19;
+      border-color: #1aad19;
+    }
+  }
   textarea {
     padding: 10px;
     height: calc(100% - 40px);

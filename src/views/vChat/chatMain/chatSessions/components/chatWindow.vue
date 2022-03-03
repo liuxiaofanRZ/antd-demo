@@ -1,12 +1,12 @@
 <template>
   <div class="vchat-window">
-    <vchat-headline  v-vcdrag="'vchat_main_drag'"></vchat-headline>
+    <vchat-headline v-vcdrag="'vchat_main_drag'"></vchat-headline>
     <template v-if="curSession.id">
       <vchat-message></vchat-message>
       <vchat-text></vchat-text>
     </template>
     <div v-else class="vchat-window-empty">
-      <a-icon  :style="{fontSize:'80px',color: '#ddd'}" type="message" />
+      <a-icon :style="{ fontSize: '80px', color: '#ddd' }" type="message" />
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <template>
-  <div class="vchat-header">
+  <div class="vchat-header" :style="{ height }">
     <div class="vchat-header-left">
       <div class="vchat-header-title">{{ title }}</div>
     </div>
@@ -8,7 +8,11 @@
       <div class="vchat-header-menu">
         <!-- <div class="vchat-header-menu-item"></div>
             <div class="vchat-header-menu-item"></div> -->
-        <div class="vchat-header-menu-item" @click="$emit('close')">
+        <div
+          v-if="!noClose"
+          class="vchat-header-menu-item"
+          @click="$emit('close')"
+        >
           <a-icon type="close" />
         </div>
       </div>
@@ -21,6 +25,14 @@ export default {
   name: 'vchatHeader',
   props: {
     title: String,
+    noClose: {
+      default: false,
+      type: Boolean,
+    },
+    height: {
+      default: '40px',
+      type: String,
+    },
   },
 }
 </script>

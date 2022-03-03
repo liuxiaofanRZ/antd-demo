@@ -49,8 +49,8 @@ export default {
   data() {
     return {
       form: {
-        username: '15166180938',
-        password: '1111',
+        username: 'dengli',
+        password: 'zxkj@123654%',
         inputCode: '111',
       },
     }

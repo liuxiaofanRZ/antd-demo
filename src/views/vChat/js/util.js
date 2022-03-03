@@ -4,7 +4,7 @@ export const facesMap = {}
 faceArray.forEach(function (item, index) {
   facesMap[item] = process.env.BASE_URL + 'face/' + index + '.gif'
 })
-// 转换内容
+// 转换消息内容
 export function transferMessage(content) {
   content = (content || '')
     .replace(/&(?!#?[a-zA-Z0-9]+;)/g, '&amp;')
@@ -38,9 +38,9 @@ export function transferMessage(content) {
       var text = (str.match(/\)\[([\s\S]*?)\]/) || [])[1]
       if (!href) return str
       return (
-        '<a class="vchat-img" href="' +
+        '<a class="vchat-link" href="' +
         href +
-        '" download target="_blank"><cite>' +
+        '" download target="_blank"><i class="vchat-download iconfont icon-download"></i><cite>' +
         (text || href) +
         '</cite></a>'
       )
@@ -65,6 +65,19 @@ export function transferMessage(content) {
 
     .replace(/\n/g, '<br>') //转义换行
   return content
+}
+// base64转File对象
+export function dataURLtoFile(dataurl, filename) {
+  //将base64转换为文件
+  var arr = dataurl.split(','),
+    mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[1]),
+    n = bstr.length,
+    u8arr = new Uint8Array(n)
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n)
+  }
+  return new File([u8arr], filename, { type: mime })
 }
 
 /******************************** 指令 ********************************/

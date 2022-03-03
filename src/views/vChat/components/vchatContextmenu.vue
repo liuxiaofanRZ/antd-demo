@@ -1,5 +1,5 @@
 <template>
-  <div class="vchat-contextmenu" v-show="visible" :style="style">
+  <div class="vchat-contextmenu" :style="style" v-show="visible">
     <slot></slot>
   </div>
 </template>
@@ -11,6 +11,10 @@ export default {
     visible: {
       type: Boolean,
       default: false,
+    },
+    setPositionTrigger: {
+      type: String,
+      default: 'contextmenu',
     },
   },
   data() {
@@ -29,13 +33,13 @@ export default {
   },
   created() {
     window.addEventListener('mousedown', this.closeMenu)
-    window.addEventListener('contextmenu', this.setPosition)
+    window.addEventListener(this.setPositionTrigger, this.setPosition)
   },
   methods: {
     closeMenu() {
-      this.$nextTick(() => {
-        this.visible && this.$emit('update:visible', false)
-      })
+      this.visible && this.$emit('update:visible', false)
+      // this.$nextTick(() => {
+      // })
     },
     setPosition(e) {
       this.left = e.clientX
