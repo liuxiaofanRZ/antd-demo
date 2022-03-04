@@ -206,7 +206,6 @@ export default {
             this.friendHasNext = pageList.current < pageList.pages
             this.friendUntreatedCount = friendCount
           }
-          console.log(res)
         })
         .finally(() => {
           this.friendLoading = false
@@ -235,7 +234,6 @@ export default {
             this.groupHasNext = pageList.current < pageList.pages
             this.groupUntreatedCount = groupCount
           }
-          console.log(res)
         })
         .finally(() => {
           this.groupLoading = false

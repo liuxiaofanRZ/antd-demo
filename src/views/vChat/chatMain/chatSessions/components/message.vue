@@ -52,13 +52,8 @@ export default {
   methods: {
     ...mapMutations(['TOGGLE_CHAT_PIC']),
     transferMessage,
-    imgLoaded(e) {
-      console.log('img', e)
-    },
     picPreview({ target }) {
       if (target.className === 'vchat-img') {
-        console.log('需要预览')
-        console.log(target.src)
         this.TOGGLE_CHAT_PIC(target.src)
       }
     },

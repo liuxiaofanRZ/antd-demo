@@ -39,6 +39,7 @@
             :key="f.id"
             v-show="f.username.indexOf(searchValue) >= 0"
             @contextmenu.prevent="contextmenu(f, fi, 'friend')"
+            :class="{ select: curItem.id === f.id }"
           >
             <a-avatar :size="36" :src="f.avatar" alt="头像" icon="user" />
 
@@ -62,6 +63,7 @@
             :key="g.id"
             v-show="g.groupName.indexOf(searchValue) >= 0"
             @contextmenu.prevent="contextmenu(g, gi, 'group')"
+            :class="{ select: curItem.id === g.id }"
           >
             <a-avatar :size="36" :src="g.avatar" alt="头像" icon="user" />
 
@@ -134,9 +136,11 @@
           </div>
         </div>
       </template>
+      <div v-else class="vchat-ads-empty">
+        <a-icon :style="{ fontSize: '80px', color: '#ddd' }" type="message" />
+      </div>
     </div>
     <vchat-contextmenu :visible.sync="contextmenuVisible">
-      <!-- TODO: 待完善 -->
       <div class="vchat-ads-ctx" v-if="curMenu === 'friend'">
         <div class="vchat-ads-ctx-item" @mousedown="openChatBox(curMenuItem)">
           发送消息
@@ -174,7 +178,7 @@
         >
           聊天记录
         </div>
-        <div class="vchat-ads-ctx-item" @mousedown="leaveGroup(curMenuItem.id)">
+        <div class="vchat-ads-ctx-item" @mousedown="openLeaveGroup">
           退出该群
         </div>
       </div>
@@ -268,6 +272,13 @@ export default {
       'openChatHistory',
       'getList',
     ]),
+    openLeaveGroup() {
+      this.leaveGroup(this.curMenuItem.id).then(() => {
+        if (this.curItem.id === this.curMenuItem.id) {
+          this.curItem = {}
+        }
+      })
+    },
     select(item) {
       this.curItem = item
     },
@@ -376,8 +387,12 @@ export default {
     align-items: center;
     height: 60px;
     cursor: default;
+
     &:hover {
       background-color: #d8d8d8;
+    }
+    &.select {
+      background-color: #c5c5c5;
     }
     &-info {
       margin-left: 9px;
@@ -475,6 +490,12 @@ export default {
         margin-bottom: 0;
       }
     }
+  }
+  &-empty {
+    height: calc(100% - 60px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 }
 </style>

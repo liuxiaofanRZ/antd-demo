@@ -8,20 +8,8 @@
     <vchat-find id="vchat_find_drag"></vchat-find>
     <!-- 聊天记录 -->
     <vchat-history id="vchat_history_drag"></vchat-history>
-
-    <div
-      id="vchat_pic_drag"
-      v-show="isChatPicOpen"
-      v-vcdrag="'vchat_pic_drag'"
-      class="vchat-pic"
-    >
-      <a-icon
-        class="vchat-pic-close"
-        @click="TOGGLE_CHAT_PIC()"
-        type="close"
-      ></a-icon>
-      <img v-if="picSrc" :src="picSrc" alt="" />
-    </div>
+    <!-- 图片预览 -->
+    <vchat-pic id="vchat_pic_drag"></vchat-pic>
   </div>
 </template>
 
@@ -30,13 +18,10 @@ import vchatBtn from './chatBtn/chatBtn.vue'
 import vchatMain from './chatMain/chatMain.vue'
 import vchatFind from './chatFind/chatFind.vue'
 import vchatHistory from './chatHistory/chatHistory.vue'
+import vchatPic from './chatPic/chatPic.vue'
 
 import { mapState, createNamespacedHelpers } from 'vuex'
-const {
-  mapState: mapStateChat,
-  mapMutations: mapMutationsChat,
-  mapActions: mapActionsChat,
-} = createNamespacedHelpers('chat')
+const { mapActions: mapActionsChat } = createNamespacedHelpers('chat')
 import { queryMsgBoxCount } from '@/axios/vChatApi'
 
 import socket from '@/socket/service'
@@ -44,7 +29,7 @@ import { BASE_URL } from '@/util/env'
 
 export default {
   name: 'vChat',
-  components: { vchatMain, vchatBtn, vchatFind, vchatHistory },
+  components: { vchatMain, vchatBtn, vchatFind, vchatHistory, vchatPic },
   data() {
     return {
       ws: null,
@@ -52,7 +37,6 @@ export default {
   },
   computed: {
     ...mapState(['token', 'info']),
-    ...mapStateChat(['picSrc', 'isChatPicOpen']),
   },
   watch: {
     token(token) {
@@ -67,8 +51,6 @@ export default {
     this.$root.chatWs.close()
   },
   methods: {
-    ...mapMutationsChat(['TOGGLE_CHAT_PIC']),
-
     ...mapActionsChat(['receiveMessage', 'receiveFindAsk', 'receiveApplyBack']),
     initSocket() {
       this.$root.chatWs = new socket({
@@ -83,7 +65,6 @@ export default {
           '/eoaSocket/' +
           this.info.id,
         onmessage: (res) => {
-          console.log(JSON.parse(res))
           let msg = JSON.parse(res)
           if (msg.type === 'chatMessage') {
             this.receiveMessage(msg.data)
@@ -141,23 +122,5 @@ export default {
     margin: 20px 0;
   }
 
-  .vchat-pic {
-    position: fixed;
-    left: 100px;
-    top: 200px;
-    background-color: #fff;
-    z-index: 10;
-    max-width: 90%;
-    &-close {
-      position: absolute;
-      top: -20px;
-      right: -20px;
-      background-color: #fff;
-      cursor: pointer;
-    }
-    img {
-      width: 100%;
-    }
-  }
 }
 </style>

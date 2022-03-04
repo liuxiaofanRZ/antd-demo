@@ -8,6 +8,76 @@
 前端项目：ico-antd",
   "glyphs": [
     {
+      "icon_id": "5643534",
+      "name": "通知",
+      "font_class": "tongzhi1",
+      "unicode": "e60d",
+      "unicode_decimal": 58893
+    },
+    {
+      "icon_id": "10359986",
+      "name": "通知公告",
+      "font_class": "tongzhigonggao",
+      "unicode": "e603",
+      "unicode_decimal": 58883
+    },
+    {
+      "icon_id": "822575",
+      "name": "bell",
+      "font_class": "bell",
+      "unicode": "e6ce",
+      "unicode_decimal": 59086
+    },
+    {
+      "icon_id": "836259",
+      "name": "bell-o",
+      "font_class": "bello",
+      "unicode": "e640",
+      "unicode_decimal": 58944
+    },
+    {
+      "icon_id": "12974868",
+      "name": "通知",
+      "font_class": "tongzhi",
+      "unicode": "e62e",
+      "unicode_decimal": 58926
+    },
+    {
+      "icon_id": "1149395",
+      "name": "通讯录",
+      "font_class": "tongxunlu1",
+      "unicode": "e6c2",
+      "unicode_decimal": 59074
+    },
+    {
+      "icon_id": "546707",
+      "name": "WeChat",
+      "font_class": "wechat",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
+      "icon_id": "548108",
+      "name": "wechat2",
+      "font_class": "wechat2",
+      "unicode": "e61c",
+      "unicode_decimal": 58908
+    },
+    {
+      "icon_id": "18664706",
+      "name": "通讯录",
+      "font_class": "tongxunlu",
+      "unicode": "e6ae",
+      "unicode_decimal": 59054
+    },
+    {
+      "icon_id": "24859977",
+      "name": "下载-文件下载-12",
+      "font_class": "download",
+      "unicode": "e856",
+      "unicode_decimal": 59478
+    },
+    {
       "icon_id": "1299861",
       "name": "Screenshots-1",
       "font_class": "jietu2",
