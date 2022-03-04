@@ -12,17 +12,11 @@ const { mapActions, mapGetters } = createNamespacedHelpers('chat')
 
 export default {
   name: 'chatBtn',
+  inject: ['numberStyle'],
   data() {
     return {
       iconStyle: {
         fontSize: '35px',
-      },
-      numberStyle: {
-        minWidth: '18px',
-        padding: '0',
-        height: '18px',
-        lineHeight: '17px',
-        boxShadow: 'none',
       },
     }
   },

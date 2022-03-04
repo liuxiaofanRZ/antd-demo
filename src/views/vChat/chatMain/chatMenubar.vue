@@ -106,15 +106,9 @@ import vchatContextmenu from '../components/vchatContextmenu.vue'
 export default {
   name: 'chatMenubar',
   components: { vchatContextmenu },
+  inject: ['numberStyle'],
   data() {
     return {
-      numberStyle: {
-        minWidth: '18px',
-        padding: '0',
-        height: '18px',
-        lineHeight: '17px',
-        boxShadow: 'none',
-      },
       infoVisible: false,
     }
   },

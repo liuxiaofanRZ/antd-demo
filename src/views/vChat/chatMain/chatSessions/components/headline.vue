@@ -1,6 +1,6 @@
 <template>
   <div class="headline">
-    <div class="title ellipsis">
+    <div class="title vchat-ellipsis">
       {{ curSession.type ? curSession.groupName : curSession.username }}
     </div>
     <!-- @blur="show = false" -->

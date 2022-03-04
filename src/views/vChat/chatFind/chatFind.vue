@@ -51,10 +51,10 @@
               icon="user"
             />
             <div class="vchat-find-info">
-              <div class="vchat-find-username ellipsis">
+              <div class="vchat-find-username vchat-ellipsis">
                 {{ item.groupName }}
               </div>
-              <div class="vchat-find-sign ellipsis">
+              <div class="vchat-find-sign vchat-ellipsis">
                 {{ item.groupIntroduce || '(无简介)' }}
               </div>
               <a-button
@@ -77,10 +77,10 @@
               icon="user"
             />
             <div class="vchat-find-info">
-              <div class="vchat-find-username ellipsis">
+              <div class="vchat-find-username vchat-ellipsis">
                 {{ item.username }}
               </div>
-              <div class="vchat-find-sign ellipsis">
+              <div class="vchat-find-sign vchat-ellipsis">
                 {{ item.sign || '我很懒，懒得写签名' }}
               </div>
               <a-button

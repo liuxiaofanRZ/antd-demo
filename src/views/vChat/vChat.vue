@@ -30,13 +30,17 @@ import { BASE_URL } from '@/util/env'
 export default {
   name: 'vChat',
   components: { vchatMain, vchatBtn, vchatFind, vchatHistory, vchatPic },
-  data() {
-    return {
-      ws: null,
-    }
-  },
   computed: {
     ...mapState(['token', 'info']),
+  },
+  provide: {
+    numberStyle: {
+      minWidth: '18px',
+      padding: '0',
+      height: '18px',
+      lineHeight: '17px',
+      boxShadow: 'none',
+    },
   },
   watch: {
     token(token) {
@@ -100,6 +104,11 @@ export default {
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  .vchat-line {
+    border-bottom: 1px solid #eee;
+    margin: 20px 0;
+  }
+  // 处理聊天中的图片、链接等特殊文本
   .vchat-img {
     max-width: 100%;
   }
@@ -117,10 +126,5 @@ export default {
     text-align: center;
     color: #666;
   }
-  .vchat-line {
-    border-bottom: 1px solid #eee;
-    margin: 20px 0;
-  }
-
 }
 </style>

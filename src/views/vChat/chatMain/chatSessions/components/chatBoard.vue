@@ -68,17 +68,11 @@ export default {
   components: {
     vchatContextmenu,
   },
+  inject: ['numberStyle'],
   data() {
     return {
       contextmenuVisible: false,
       searchValue: '',
-      numberStyle: {
-        minWidth: '18px',
-        padding: '0',
-        height: '18px',
-        lineHeight: '17px',
-        boxShadow: 'none',
-      },
     }
   },
   computed: {
