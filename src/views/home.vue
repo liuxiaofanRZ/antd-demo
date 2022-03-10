@@ -1,11 +1,6 @@
 <template>
   <div draggable="true" class="home">
     Hello World!
-
-    <tmp>
-      <div v-for="n in num" :key="n">{{ n }}</div>
-    </tmp>
-    <button @click="num++">增加</button>
     <div class="custom-table">
       <table border="1">
         <tr>
@@ -146,21 +141,12 @@
 </template>
 
 <script>
-import tmp from '@/views/tmp/tmp.vue'
 export default {
-  components: { tmp },
   name: 'home',
   data() {
-    return {
-      num: 10,
-      collapsed: false,
-    }
+    return {}
   },
-  methods: {
-    breakpoint(e) {
-      console.log(e)
-    },
-  },
+  methods: {},
 }
 </script>
 
@@ -170,15 +156,6 @@ export default {
   position: relative;
   height: 301px;
   overflow: hidden;
-  // &::after {
-  //   content:"";
-  //   height: 30px;
-  //   width: 100%;
-  //   position: absolute;
-  //   bottom: 0;
-  //   left: 0;
-  //   background-color: #fff;
-  // }
   th,
   td {
     height: 30px;

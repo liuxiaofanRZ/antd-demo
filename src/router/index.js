@@ -87,6 +87,11 @@ export const routes = [
     name: 'loginIco',
     component: () => import('../views/loginIco/loginIcoIndex.vue'),
   },
+  {
+    path: '/webGl',
+    name: 'webGl',
+    component: () => import('../views/webGl/webGlIndex.vue'),
+  },
 ]
 
 const router = new VueRouter({
